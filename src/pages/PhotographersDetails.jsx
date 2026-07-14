@@ -2,8 +2,10 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 const fetchPhotographer = async (id) => {
-  const response = await axios.get(`http://localhost:3000/photographers/${id}`);
+  const response = await axios.get(`${BASE_URL}/photographers/${id}`);
   return response.data;
 };
 

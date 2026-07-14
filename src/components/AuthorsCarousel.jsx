@@ -8,8 +8,10 @@ import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 const fetchAuthors = async () => {
-  const response = await axios.get("http://localhost:3000/authors");
+  const response = await axios.get(`${BASE_URL}/authors`);
 
   return response.data;
 };

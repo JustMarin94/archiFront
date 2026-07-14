@@ -1,8 +1,9 @@
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const fetchWorkTitles = async () => {
-  const response = await axios.get("http://localhost:3000/works/titles");
+  const response = await axios.get(`${BASE_URL}/works/titles`);
 
   return response.data;
 };

@@ -4,8 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 const fetchWork = async (id) => {
-  const response = await axios.get(`http://localhost:3000/works/${id}`);
+  const response = await axios.get(`${BASE_URL}/works/${id}`);
   return response.data;
 };
 

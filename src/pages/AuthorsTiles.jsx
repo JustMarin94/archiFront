@@ -2,8 +2,10 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 const fetchAuthors = async (filters) => {
-  const response = await axios.get("http://localhost:3000/authors", {
+  const response = await axios.get(`${BASE_URL}/authors`, {
     params: {
       title: filters.work || null,
       full_name: filters.author || null,

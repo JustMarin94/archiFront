@@ -8,8 +8,10 @@ import AuthorsCarousel from "./components/AuthorsCarousel";
 import PhotographersCarousel from "./components/PhotographersCarousel";
 import Footer from "./components/Footer";
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 const fetchLocations = async () => {
-  const response = await axios.get("http://localhost:3000/works/locations");
+  const response = await axios.get(`${BASE_URL}/works/locations`);
   return response.data;
 };
 

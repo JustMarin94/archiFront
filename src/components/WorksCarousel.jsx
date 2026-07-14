@@ -8,9 +8,10 @@ import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 
-const fetchWorks = async () => {
-  const response = await axios.get("http://localhost:3000/works");
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
+const fetchWorks = async () => {
+  const response = await axios.get(`${BASE_URL}/works`);
   return response.data;
 };
 
