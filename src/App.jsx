@@ -1,40 +1,173 @@
 import { MapContainer, TileLayer, CircleMarker } from "react-leaflet";
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+import { useState } from "react";
+import WorksCarousel from "./components/WorksCarousel";
+import AuthorsCarousel from "./components/AuthorsCarousel";
+import PhotographersCarousel from "./components/PhotographersCarousel";
+import Footer from "./components/Footer";
+
+const fetchLocations = async () => {
+  const response = await axios.get("http://localhost:3000/works/locations");
+  return response.data;
+};
 
 export default function App() {
-  const locations = [
-    {
-      id: 1,
-      name: "Zagreb",
-      lat: 45.815,
-      lng: 15.9819,
-      color: "red",
-    },
-    {
-      id: 2,
-      name: "Home",
-      lat: 45.80041818398013,
-      lng: 15.936644525578982,
-      color: "blue",
-    },
-  ];
+  const [openMenu, setOpenMenu] = useState(false);
+
+  const {
+    data: locations = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["locations"],
+    queryFn: fetchLocations,
+  });
+
+  if (isLoading) {
+    return <div>Loading map...</div>;
+  }
+
+  if (isError) {
+    return <div>Failed to load locations</div>;
+  }
 
   return (
     <>
-      <div class="bg-amber-50 w-full h-80 flex flex-row justify-around items-center">
-        <h1 class="text-4xl font-semibold">1565 Projekta</h1>
-        <h1 class="text-4xl font-semibold">154 Autora</h1>
-        <h1 class="text-4xl font-semibold">352 Fotografa</h1>
-      </div>
+      {/* Navbar */}
+      <nav className="relative h-24 flex justify-center items-center">
+        <button
+          onClick={() => setOpenMenu(!openMenu)}
+          className="flex flex-col gap-2"
+        >
+          <span className="w-10 h-1 bg-black"></span>
+          <span className="w-10 h-1 bg-black"></span>
+          <span className="w-10 h-1 bg-black"></span>
+        </button>
 
-      <div class="bg-amber-100 w-full h-40 flex flex-row justify-around items-center">
-        <h1 class="text-6xl font-bold flex items-center justify-center">
-          Mapa Arheoloških Nalaza
+        {openMenu && (
+          <div className="absolute top-24 bg-white shadow-xl p-8 flex flex-col gap-5 z-50">
+            <Link to="/" className="text-xl font-bold uppercase">
+              Početna
+            </Link>
+
+            <Link to="/filter" className="text-xl font-bold uppercase">
+              Pretraga
+            </Link>
+          </div>
+        )}
+      </nav>
+
+      {/* Hero */}
+      <section className=" min-h-[500px] flex flex-col justify-center items-center text-center px-6">
+        <h1
+          className="
+      text-6xl
+      md:text-8xl
+      font-black
+      uppercase
+      tracking-tight
+      max-w-5xl
+    "
+        >
+          Arheološka evidencija
         </h1>
-      </div>
 
+        <p
+          className="
+      mt-8
+      text-lg
+      md:text-xl
+      max-w-3xl
+      leading-relaxed
+      text-gray-700
+    "
+        >
+          Digitalna mapa arheoloških nalaza koja povezuje projekte, autore i
+          fotografe na jednom mjestu.
+        </p>
+
+        <button
+          className="
+      mt-10
+      bg-black
+      text-white
+      px-10
+      py-5
+      font-bold
+      uppercase
+      tracking-wide
+      text-lg
+    "
+        >
+          Istraži mapu
+        </button>
+      </section>
+
+      {/* Categories */}
+      <section
+        className="
+    w-full
+    py-20
+    grid
+    grid-cols-1
+    md:grid-cols-3
+    text-center
+    gap-10
+  "
+      >
+        <div>
+          <h2 className="text-6xl font-black">1565</h2>
+          <p className="mt-2 text-lg uppercase font-bold tracking-wide">
+            Projekata
+          </p>
+        </div>
+
+        <div>
+          <h2 className="text-6xl font-black">154</h2>
+          <p className="mt-2 text-lg uppercase font-bold tracking-wide">
+            Autora
+          </p>
+        </div>
+
+        <div>
+          <h2 className="text-6xl font-black">352</h2>
+          <p className="mt-2 text-lg uppercase font-bold tracking-wide">
+            Fotografa
+          </p>
+        </div>
+      </section>
+
+      {/* Map title */}
+      <section
+        className="
+   
+    py-24
+    flex
+    justify-center
+    items-center
+    text-center
+    px-6
+  "
+      >
+        <h2
+          className="
+      text-6xl
+      md:text-8xl
+      font-black
+      uppercase
+      tracking-tight
+    "
+        >
+          Mapa Arheoloških Nalaza
+        </h2>
+      </section>
+
+      {/* Map */}
       <MapContainer
         center={[45.815, 15.9819]}
-        zoom={13}
+        zoom={5}
         style={{ height: "100vh", width: "100%" }}
       >
         <TileLayer
@@ -42,46 +175,23 @@ export default function App() {
           url="https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}.png"
         />
 
-        {locations.map((location) => (
+        {locations.map((location, index) => (
           <CircleMarker
-            key={location.id}
-            center={[location.lat, location.lng]}
+            key={index}
+            center={[location.latitude, location.longitude]}
             radius={8}
             pathOptions={{
-              color: location.color, // border color
-              fillColor: location.color, // inside color
+              color: "red",
+              fillColor: "red",
               fillOpacity: 1,
             }}
           />
         ))}
       </MapContainer>
-
-      <div class="bg-amber-50 w-full h-40 flex flex-col justify-around items-center">
-        <div class="bg-amber-100 w-full h-20 flex flex-row justify-around items-center">
-          <h1 class="text-4xl font-semibold">1565 Projekta</h1>
-        </div>
-        <div className="bg-amber-100 w-full h-200 flex flex-row justify-around items-center gap-4 p-8">
-          <img
-            src="https://images.unsplash.com/photo-1520587393050-c5298e1a8486?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            className="h-100 w-full object-cover rounded"
-          />
-
-          <img
-            src="https://images.unsplash.com/photo-1520587393050-c5298e1a8486?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            className="h-100 w-full object-cover rounded"
-          />
-
-          <img
-            src="https://images.unsplash.com/photo-1520587393050-c5298e1a8486?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            className="h-100 w-full object-cover rounded"
-          />
-
-          <img
-            src="https://images.unsplash.com/photo-1520587393050-c5298e1a8486?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            className="h-100 w-full object-cover rounded"
-          />
-        </div>
-      </div>
+      <WorksCarousel />
+      <AuthorsCarousel />
+      <PhotographersCarousel />
+      <Footer />
     </>
   );
 }
