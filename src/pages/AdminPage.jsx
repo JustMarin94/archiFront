@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../api/client";
 import Navbar from "../shared/Navbar";
@@ -132,6 +132,7 @@ export default function AdminDashboard() {
                   {editingItem ? "Edit Work" : "Create New Work"}
                 </h2>
                 <WorkForm
+                  key={editingItem?.id || "new-work"} // <-- Adding this key fixes the issue!
                   initialData={editingItem}
                   authorsList={authors}
                   onSubmit={(data) => saveWorkMutation.mutate(data)}
@@ -191,6 +192,7 @@ export default function AdminDashboard() {
                   {editingItem ? "Edit Author" : "Create New Author"}
                 </h2>
                 <AuthorForm
+                  key={editingItem?.id || "new-author"} // <-- Adding this key fixes the issue!
                   initialData={editingItem}
                   onSubmit={(data) => saveAuthorMutation.mutate(data)}
                   onCancel={() => setEditingItem(null)}
@@ -258,24 +260,25 @@ function AuthorForm({ initialData, onSubmit, onCancel }) {
     description: initialData?.description || "",
   });
 
-  React.useEffect(() => {
-    setFormData({
-      full_name: initialData?.full_name || "",
-      birth_year: initialData?.birth_year || "",
-      death_year: initialData?.death_year || "",
-      education: initialData?.education || "",
-      awards: initialData?.awards || "",
-      description: initialData?.description || "",
-    });
-  }, [initialData]);
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+
+    // Extract just the year (e.g., "2025") from the date string ("2025-12-17")
+    const payload = {
+      ...formData,
+      birth_year: formData.birth_year
+        ? parseInt(formData.birth_year.split("-")[0])
+        : null,
+      death_year: formData.death_year
+        ? parseInt(formData.death_year.split("-")[0])
+        : null,
+    };
+
+    onSubmit(payload);
   };
 
   return (
@@ -309,11 +312,11 @@ function AuthorForm({ initialData, onSubmit, onCancel }) {
       <div className="grid md:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Birth Year
+            Birth Date
           </label>
           <input
             name="birth_year"
-            type="number"
+            type="date"
             value={formData.birth_year}
             onChange={handleChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -321,11 +324,11 @@ function AuthorForm({ initialData, onSubmit, onCancel }) {
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Death Year
+            Death Date
           </label>
           <input
             name="death_year"
-            type="number"
+            type="date"
             value={formData.death_year}
             onChange={handleChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -392,21 +395,6 @@ function WorkForm({ initialData, authorsList, onSubmit, onCancel }) {
     role: initialData?.authors?.[0]?.role || "",
     photo_url: initialData?.photos?.[0]?.url || "",
   });
-
-  React.useEffect(() => {
-    setFormData({
-      title: initialData?.title || "",
-      description: initialData?.description || "",
-      typology: initialData?.typology || "",
-      city: initialData?.city || "",
-      region: initialData?.region || "",
-      year_start: initialData?.year_start || "",
-      year_end: initialData?.year_end || "",
-      author_id: initialData?.authors?.[0]?.id || "",
-      role: initialData?.authors?.[0]?.role || "",
-      photo_url: initialData?.photos?.[0]?.url || "",
-    });
-  }, [initialData]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
