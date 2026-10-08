@@ -132,10 +132,19 @@ export default function AdminDashboard() {
                   {editingItem ? "Edit Work" : "Create New Work"}
                 </h2>
                 <WorkForm
-                  key={editingItem?.id || "new-work"} // <-- Adding this key fixes the issue!
+                  key={editingItem?.id || "new-work"}
                   initialData={editingItem}
                   authorsList={authors}
-                  onSubmit={(data) => saveWorkMutation.mutate(data)}
+                  onSubmit={(data, resetForm) => {
+                    saveWorkMutation.mutate(data, {
+                      onSuccess: () => {
+                        queryClient.invalidateQueries({ queryKey: ["works"] });
+                        setEditingItem(null);
+                        if (resetForm) resetForm(); // Clears the form fields!
+                        alert("Work saved successfully!");
+                      },
+                    });
+                  }}
                   onCancel={() => setEditingItem(null)}
                 />
               </div>
@@ -192,9 +201,20 @@ export default function AdminDashboard() {
                   {editingItem ? "Edit Author" : "Create New Author"}
                 </h2>
                 <AuthorForm
-                  key={editingItem?.id || "new-author"} // <-- Adding this key fixes the issue!
+                  key={editingItem?.id || "new-author"}
                   initialData={editingItem}
-                  onSubmit={(data) => saveAuthorMutation.mutate(data)}
+                  onSubmit={(data, resetForm) => {
+                    saveAuthorMutation.mutate(data, {
+                      onSuccess: () => {
+                        queryClient.invalidateQueries({
+                          queryKey: ["authors"],
+                        });
+                        setEditingItem(null);
+                        if (resetForm) resetForm(); // Clears the form fields!
+                        alert("Author saved successfully!");
+                      },
+                    });
+                  }}
                   onCancel={() => setEditingItem(null)}
                 />
               </div>
@@ -278,7 +298,17 @@ function AuthorForm({ initialData, onSubmit, onCancel }) {
         : null,
     };
 
-    onSubmit(payload);
+    onSubmit(payload, () => {
+      // Clear form after successful submit
+      setFormData({
+        full_name: "",
+        birth_year: "",
+        death_year: "",
+        education: "",
+        awards: "",
+        description: "",
+      });
+    });
   };
 
   return (
@@ -409,7 +439,21 @@ function WorkForm({ initialData, authorsList, onSubmit, onCancel }) {
         : [],
       photos: formData.photo_url ? [{ url: formData.photo_url }] : [],
     };
-    onSubmit(payload);
+    onSubmit(payload, () => {
+      // Clear form after successful submit
+      setFormData({
+        title: "",
+        description: "",
+        typology: "",
+        city: "",
+        region: "",
+        year_start: "",
+        year_end: "",
+        author_id: "",
+        role: "",
+        photo_url: "",
+      });
+    });
   };
 
   return (
