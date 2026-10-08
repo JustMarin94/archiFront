@@ -1,13 +1,14 @@
-import axios from "axios";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import { api } from "../api/client";
+import AuthorGraph from "../components/AuthorGraph";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const fetchWork = async (id) => {
-  const response = await axios.get(`${BASE_URL}/works/${id}`);
+  const response = await api.get(`${BASE_URL}/works/${id}`);
   return response.data;
 };
 
@@ -78,23 +79,62 @@ export default function WorkDetails() {
 
               <div className="space-y-3">
                 <p>
-                  <span className="font-medium">Category:</span> {work.category}
+                  <span className="font-medium">Typology:</span>{" "}
+                  {work.typology || "—"}
                 </p>
 
                 <p>
-                  <span className="font-medium">Typology:</span> {work.typology}
+                  <span className="font-medium">Address:</span>{" "}
+                  {work.address || "—"}
                 </p>
 
                 <p>
-                  <span className="font-medium">Address:</span> {work.address}
+                  <span className="font-medium">Postal Code:</span>{" "}
+                  {work.postal_code || "—"}
                 </p>
 
                 <p>
-                  <span className="font-medium">City:</span> {work.city}
+                  <span className="font-medium">City:</span> {work.city || "—"}
                 </p>
 
                 <p>
-                  <span className="font-medium">Country:</span> {work.country}
+                  <span className="font-medium">Region:</span>{" "}
+                  {work.region || "—"}
+                </p>
+
+                <p>
+                  <span className="font-medium">Construction Started:</span>{" "}
+                  {work.year_start || "—"}
+                </p>
+
+                <p>
+                  <span className="font-medium">Construction Completed:</span>{" "}
+                  {work.year_end || "—"}
+                </p>
+
+                <p>
+                  <span className="font-medium">Investor:</span>{" "}
+                  {work.investor || "—"}
+                </p>
+
+                <p>
+                  <span className="font-medium">Protection Status:</span>{" "}
+                  {work.protection_status || "—"}
+                </p>
+
+                <p>
+                  <span className="font-medium">Status:</span>{" "}
+                  {work.status || "—"}
+                </p>
+
+                <p>
+                  <span className="font-medium">Intervention Type:</span>{" "}
+                  {work.intervention_type || "—"}
+                </p>
+
+                <p>
+                  <span className="font-medium">Legacy Category:</span>{" "}
+                  {work.legacy_category || "—"}
                 </p>
               </div>
             </div>
@@ -119,12 +159,6 @@ export default function WorkDetails() {
                 <p>
                   <span className="font-medium">Updated:</span>{" "}
                   {new Date(work.updated_at).toLocaleString()}
-                </p>
-
-                <p>
-                  <span className="font-medium">Author ID:</span>
-                  <br />
-                  <span className="text-sm break-all">{work.author_id}</span>
                 </p>
 
                 <p>
@@ -183,6 +217,7 @@ export default function WorkDetails() {
                     </Popup>
                   </Marker>
                 </MapContainer>
+                <AuthorGraph work={work} />
               </div>
             </div>
           )}

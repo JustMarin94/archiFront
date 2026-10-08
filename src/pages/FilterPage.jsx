@@ -1,21 +1,30 @@
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import AuthorsTiles from "./AuthorsTiles";
-import PhotographersTiles from "./PhotographersTiles";
 import WorksTiles from "./WorksTiles";
-
-import WorksFilter from "../components/WorksFilter";
-import AuthorsFilter from "../components/AuthorsFilter";
-import PhotographersFilter from "../components/PhotographersFilter";
+import Filter from "../components/Filter";
+import Navbar from "../shared/Navbar";
 
 export default function FilterPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [selectedPage, setSelectedPage] = useState("works");
 
   const [filters, setFilters] = useState({
-    work: "",
-    author: "",
-    photographer: "",
+    title: searchParams.get("title") || "",
+    typology: searchParams.get("typology") || "",
+    awards: searchParams.get("awards") || "",
+    author: searchParams.get("author") || "",
+    region: searchParams.get("region") || "",
+    yearStart: searchParams.get("yearStart")
+      ? Number(searchParams.get("yearStart"))
+      : null,
+    yearEnd: searchParams.get("yearEnd")
+      ? Number(searchParams.get("yearEnd"))
+      : null,
   });
+
+  console.log("filters", filters);
 
   const updateFilter = (key, value) => {
     setFilters((prev) => ({
@@ -24,54 +33,36 @@ export default function FilterPage() {
     }));
   };
 
+  // Update URL whenever filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+      // Don't put empty/default values into the URL
+      if (value !== "" && value !== null && value !== undefined) {
+        params.set(key, value);
+      }
+    });
+
+    setSearchParams(params);
+  }, [filters, setSearchParams]);
+
   return (
     <div>
-      <div className=" p-8 space-y-6">
-        {/* PAGE SELECTOR */}
-        <select
-          value={selectedPage}
-          onChange={(e) => setSelectedPage(e.target.value)}
-          className="border rounded-lg px-4 py-2"
-        >
-          <option value="works">Works</option>
-          <option value="authors">Authors</option>
-          <option value="photographers">Photographers</option>
-        </select>
+      <Navbar />
 
-        {/* FILTERS */}
-        {selectedPage === "works" && (
-          <WorksFilter
-            selectedWork={filters.work}
-            setSelectedWork={(value) => updateFilter("work", value)}
-          />
-        )}
-
-        {selectedPage === "authors" && (
-          <AuthorsFilter
-            selectedAuthor={filters.author}
-            setSelectedAuthor={(value) => updateFilter("author", value)}
-          />
-        )}
-
-        {selectedPage === "photographers" && (
-          <PhotographersFilter
-            selectedPhotographer={filters.photographer}
-            setSelectedPhotographer={(value) =>
-              updateFilter("photographer", value)
-            }
-          />
-        )}
+      <div className="p-8 space-y-6">
+        <Filter
+          selectedPage={selectedPage}
+          setSelectedPage={setSelectedPage}
+          filters={filters}
+          updateFilter={updateFilter}
+        />
       </div>
-
-      {/* CONTENT */}
 
       {selectedPage === "works" && <WorksTiles filters={filters} />}
 
       {selectedPage === "authors" && <AuthorsTiles filters={filters} />}
-
-      {selectedPage === "photographers" && (
-        <PhotographersTiles filters={filters} />
-      )}
     </div>
   );
 }

@@ -1,1 +1,23 @@
 @import "tailwindcss";
+
+.author-graph .react-flow__node {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+.author-graph .react-flow__node-default {
+  background: transparent !important;
+  border: none !important;
+}
+
+.author-graph .react-flow__handle {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.author-graph .react-flow__edge-path {
+  stroke: #999 !important;
+  stroke-width: 2 !important;
+}

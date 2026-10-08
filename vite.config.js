@@ -8,4 +8,7 @@ export default defineConfig({
   build: {
     sourcemap: true,
   },
+  server: {
+    allowedHosts: ["0522-188-129-78-153.ngrok-free.app"],
+  },
 });

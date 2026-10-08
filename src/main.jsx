@@ -6,8 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import WorkDetails from "./pages/WorkDetails.jsx";
 import AuthorsDetails from "./pages/AuthorsDetails.jsx";
-import PhotographersDetails from "./pages/PhotographersDetails.jsx";
 import FilterPage from "./pages/FilterPage.jsx";
+import AdminPage from "./pages/AdminPage.jsx";
 
 import "leaflet/dist/leaflet.css";
 
@@ -24,10 +24,7 @@ const router = createBrowserRouter([
     path: "/authors/:id",
     element: <AuthorsDetails />,
   },
-  {
-    path: "/photographers/:id",
-    element: <PhotographersDetails />,
-  },
+  { path: "/admin", element: <AdminPage /> },
 ]);
 
 createRoot(document.getElementById("root")).render(

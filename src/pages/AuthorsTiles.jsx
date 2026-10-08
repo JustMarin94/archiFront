@@ -1,15 +1,19 @@
-import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
+import { api } from "../api/client";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const fetchAuthors = async (filters) => {
-  const response = await axios.get(`${BASE_URL}/authors`, {
+  const response = await api.get(`${BASE_URL}/authors`, {
     params: {
-      title: filters.work || null,
-      full_name: filters.author || null,
-      photographer: filters.photographer || null,
+      title: filters.title || undefined,
+      typology: filters.typology || undefined,
+      awards: filters.awards || undefined,
+      full_name: filters.author || undefined,
+      region: filters.region || undefined,
+      yearStart: filters.yearStart || undefined,
+      yearEnd: filters.yearEnd || undefined,
     },
   });
 

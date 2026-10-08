@@ -1,68 +1,43 @@
-import { MapContainer, TileLayer, CircleMarker } from "react-leaflet";
-import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
-import { useState } from "react";
-import WorksCarousel from "./components/WorksCarousel";
-import AuthorsCarousel from "./components/AuthorsCarousel";
-import PhotographersCarousel from "./components/PhotographersCarousel";
-import Footer from "./components/Footer";
-
-const BASE_URL = import.meta.env.VITE_BASE_URL;
-
-const fetchLocations = async () => {
-  const response = await axios.get(`${BASE_URL}/works/locations`);
-  return response.data;
-};
+import Footer from "./shared/Footer";
+import { useWorks } from "./features/works/hooks/useWorks";
+import { useAuthors } from "./features/authors/hooks/useAuthors";
+import LoadingError from "./shared/LoadingError";
+import Navbar from "./shared/Navbar";
+import Map from "./shared/Map";
+import CarouselSection from "./shared/CarouselSection";
 
 export default function App() {
-  const [openMenu, setOpenMenu] = useState(false);
-
   const {
-    data: locations = [],
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["locations"],
-    queryFn: fetchLocations,
-  });
+    data: works = [],
+    isLoading: isLoadingWorks,
+    isError: isErrorWorks,
+  } = useWorks();
+  const {
+    data: authors = [],
+    isLoading: isLoadingAuthors,
+    isError: isErrorAuthors,
+  } = useAuthors();
 
-  if (isLoading) {
-    return <div>Loading map...</div>;
+  if (isLoadingWorks || isLoadingAuthors) {
+    return <LoadingError resource="data" isLoading={true} />;
   }
 
-  if (isError) {
-    return <div>Failed to load locations</div>;
+  if (isErrorWorks || isErrorAuthors) {
+    return <LoadingError resource="data" isError={true} />;
   }
+
+  const worksLocations = works.map((work) => ({
+    latitude: Number(work.latitude),
+    longitude: Number(work.longitude),
+    category: work.legacy_category,
+    title: work.title,
+  }));
 
   return (
     <>
-      {/* Navbar */}
-      <nav className="relative h-24 flex justify-center items-center">
-        <button
-          onClick={() => setOpenMenu(!openMenu)}
-          className="flex flex-col gap-2"
-        >
-          <span className="w-10 h-1 bg-black"></span>
-          <span className="w-10 h-1 bg-black"></span>
-          <span className="w-10 h-1 bg-black"></span>
-        </button>
-
-        {openMenu && (
-          <div className="absolute top-24 bg-white shadow-xl p-8 flex flex-col gap-5 z-50">
-            <Link to="/" className="text-xl font-bold uppercase">
-              Početna
-            </Link>
-
-            <Link to="/filter" className="text-xl font-bold uppercase">
-              Pretraga
-            </Link>
-          </div>
-        )}
-      </nav>
-
+      <Navbar />
       {/* Hero */}
-      <section className=" min-h-[500px] flex flex-col justify-center items-center text-center px-6">
+      <section className=" min-h-125 flex flex-col justify-center items-center text-center px-6">
         <h1
           className="
       text-6xl
@@ -106,7 +81,6 @@ export default function App() {
           Istraži mapu
         </button>
       </section>
-
       {/* Categories */}
       <section
         className="
@@ -120,27 +94,19 @@ export default function App() {
   "
       >
         <div>
-          <h2 className="text-6xl font-black">1565</h2>
+          <h2 className="text-6xl font-black">{works.length}</h2>
           <p className="mt-2 text-lg uppercase font-bold tracking-wide">
             Projekata
           </p>
         </div>
 
         <div>
-          <h2 className="text-6xl font-black">154</h2>
+          <h2 className="text-6xl font-black">{authors.length}</h2>
           <p className="mt-2 text-lg uppercase font-bold tracking-wide">
             Autora
           </p>
         </div>
-
-        <div>
-          <h2 className="text-6xl font-black">352</h2>
-          <p className="mt-2 text-lg uppercase font-bold tracking-wide">
-            Fotografa
-          </p>
-        </div>
       </section>
-
       {/* Map title */}
       <section
         className="
@@ -165,34 +131,22 @@ export default function App() {
           Mapa Arheoloških Nalaza
         </h2>
       </section>
-
       {/* Map */}
-      <MapContainer
-        center={[45.815, 15.9819]}
-        zoom={5}
-        style={{ height: "100vh", width: "100%" }}
-      >
-        <TileLayer
-          attribution="&copy; OpenStreetMap contributors"
-          url="https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}.png"
-        />
-
-        {locations.map((location, index) => (
-          <CircleMarker
-            key={index}
-            center={[location.latitude, location.longitude]}
-            radius={8}
-            pathOptions={{
-              color: "red",
-              fillColor: "red",
-              fillOpacity: 1,
-            }}
-          />
-        ))}
-      </MapContainer>
-      <WorksCarousel />
-      <AuthorsCarousel />
-      <PhotographersCarousel />
+      <Map locations={worksLocations} />
+      <CarouselSection
+        title="WORKS"
+        description="Explore architectural projects."
+        items={works}
+        renderImage={(work) => work.photos?.[0]?.url}
+        renderTitle={(work) => work.title}
+      />
+      <CarouselSection
+        title="AUTHORS"
+        description="Discover the architects behind the projects."
+        items={authors}
+        renderImage={(author) => author.photo_url}
+        renderTitle={(author) => author.full_name}
+      />
       <Footer />
     </>
   );
