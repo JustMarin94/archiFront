@@ -83,10 +83,6 @@ export default function AuthorDetails() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
             <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12">
-              <p className="text-sm uppercase tracking-[0.2em] text-white/75 mb-3">
-                Author
-              </p>
-
               <h1 className="text-3xl md:text-5xl font-semibold text-white">
                 {authorName}
               </h1>
@@ -99,9 +95,54 @@ export default function AuthorDetails() {
             </div>
           </div>
 
-          {/* Main content */}
+          {/* Main content grid */}
           <div className="mt-10 md:mt-14 grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-14">
-            {/* Left column */}
+            {/* Left sidebar */}
+            <aside className="lg:col-span-1 space-y-8">
+              <section className="border-t border-neutral-300 pt-5">
+                <h2 className="text-lg font-semibold text-neutral-900 mb-5">
+                  Author Information
+                </h2>
+
+                <dl className="space-y-5">
+                  <div>
+                    <dt className="text-xs uppercase tracking-wider text-neutral-500 mb-1">
+                      Full name
+                    </dt>
+                    <dd className="text-sm text-neutral-800">{authorName}</dd>
+                  </div>
+
+                  <div>
+                    <dt className="text-xs uppercase tracking-wider text-neutral-500 mb-1">
+                      Birth year
+                    </dt>
+                    <dd className="text-sm text-neutral-800">
+                      {author.birth_year || "—"}
+                    </dd>
+                  </div>
+
+                  <div>
+                    <dt className="text-xs uppercase tracking-wider text-neutral-500 mb-1">
+                      Death year
+                    </dt>
+                    <dd className="text-sm text-neutral-800">
+                      {author.death_year || "Still living / unknown"}
+                    </dd>
+                  </div>
+
+                  <div>
+                    <dt className="text-xs uppercase tracking-wider text-neutral-500 mb-1">
+                      Education
+                    </dt>
+                    <dd className="text-sm text-neutral-800">
+                      {author.education || "—"}
+                    </dd>
+                  </div>
+                </dl>
+              </section>
+            </aside>
+
+            {/* Right main content column */}
             <div className="lg:col-span-2 space-y-12">
               {/* Biography */}
               {author.description && (
@@ -116,31 +157,22 @@ export default function AuthorDetails() {
                 </section>
               )}
 
-              {/* Awards & Honors (Mapped from normalized array) */}
               {Array.isArray(author.awards) && author.awards.length > 0 && (
                 <section>
                   <h2 className="text-2xl font-semibold text-neutral-900 mb-5">
                     Awards & Honors
                   </h2>
 
-                  <ul className="space-y-4">
+                  <ul className="space-y-3">
                     {author.awards.map((award, index) => (
-                      <li
-                        key={award.id || index}
-                        className="p-4 bg-white border border-neutral-200 rounded-xl shadow-sm"
-                      >
-                        <div className="flex flex-wrap items-baseline justify-between gap-2">
-                          <h3 className="text-lg font-medium text-neutral-900">
-                            {award.title}
-                          </h3>
-                          {award.year && (
-                            <span className="text-sm font-semibold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full">
-                              {award.year}
-                            </span>
-                          )}
+                      <li key={award.id || index} className="text-neutral-800">
+                        <div className="flex flex-wrap items-baseline gap-2">
+                          <span className="text-base text-neutral-800">
+                            {award.title} {award.year && `(${award.year})`}
+                          </span>
                         </div>
                         {award.description && (
-                          <p className="mt-2 text-sm text-neutral-600">
+                          <p className="mt-1 text-sm text-neutral-600">
                             {award.description}
                           </p>
                         )}
@@ -192,52 +224,6 @@ export default function AuthorDetails() {
                 </section>
               )}
             </div>
-
-            {/* Right sidebar */}
-            <aside className="space-y-8">
-              {/* Author information */}
-              <section className="border-t border-neutral-300 pt-5">
-                <h2 className="text-lg font-semibold text-neutral-900 mb-5">
-                  Author Information
-                </h2>
-
-                <dl className="space-y-5">
-                  <div>
-                    <dt className="text-xs uppercase tracking-wider text-neutral-500 mb-1">
-                      Full name
-                    </dt>
-                    <dd className="text-sm text-neutral-800">{authorName}</dd>
-                  </div>
-
-                  <div>
-                    <dt className="text-xs uppercase tracking-wider text-neutral-500 mb-1">
-                      Birth year
-                    </dt>
-                    <dd className="text-sm text-neutral-800">
-                      {author.birth_year || "—"}
-                    </dd>
-                  </div>
-
-                  <div>
-                    <dt className="text-xs uppercase tracking-wider text-neutral-500 mb-1">
-                      Death year
-                    </dt>
-                    <dd className="text-sm text-neutral-800">
-                      {author.death_year || "Still living / unknown"}
-                    </dd>
-                  </div>
-
-                  <div>
-                    <dt className="text-xs uppercase tracking-wider text-neutral-500 mb-1">
-                      Education
-                    </dt>
-                    <dd className="text-sm text-neutral-800">
-                      {author.education || "—"}
-                    </dd>
-                  </div>
-                </dl>
-              </section>
-            </aside>
           </div>
         </article>
       </main>

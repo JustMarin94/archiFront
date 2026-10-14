@@ -23,20 +23,6 @@ const formatYearRange = (start, end) => {
   return start || end || "Year unknown";
 };
 
-const formatDate = (date) => {
-  if (!date) return "—";
-
-  const parsedDate = new Date(date);
-
-  if (Number.isNaN(parsedDate.getTime())) return "—";
-
-  return parsedDate.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
-
 const getImageUrl = (photo, width = 1600) => {
   if (!photo?.url) return "";
 
@@ -45,14 +31,12 @@ const getImageUrl = (photo, width = 1600) => {
   return `${photo.url}${separator}q=85&w=${width}&auto=format&fit=crop`;
 };
 
-function SectionHeading({ number, children, id }) {
+function SectionHeading({ children, id }) {
   return (
     <div
       id={id}
       className="mb-8 flex items-center gap-4 border-b border-neutral-300 pb-4"
     >
-      {number && <span className="text-xs text-neutral-500">{number}</span>}
-
       <h2 className="text-2xl font-semibold uppercase tracking-tight sm:text-3xl">
         {children}
       </h2>
@@ -87,32 +71,14 @@ function WorkHero({ work, photos }) {
         {/* Project title */}
 
         <div className="flex flex-col justify-end lg:col-span-5">
-          <p className="mb-5 text-xs uppercase tracking-[0.2em] text-neutral-500">
-            Architecture / Project
-          </p>
-
           <h1 className="max-w-2xl text-5xl font-bold leading-[0.95] tracking-[-0.06em] text-black sm:text-6xl lg:text-7xl xl:text-8xl">
             {work.title}
           </h1>
 
-          <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-neutral-600">
+          <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-xl text-neutral-600">
             {work.authors?.map((author) => (
               <span key={author.id}>{author.name}</span>
             ))}
-
-            {work.typology && (
-              <>
-                <span aria-hidden="true">/</span>
-                <span>{work.typology}</span>
-              </>
-            )}
-
-            {work.city && (
-              <>
-                <span aria-hidden="true">/</span>
-                <span>{work.city}</span>
-              </>
-            )}
           </div>
         </div>
 
@@ -156,7 +122,6 @@ function WorkNavigation() {
   const links = [
     { label: "Overview", href: "#overview" },
     { label: "Gallery", href: "#gallery" },
-    { label: "Information", href: "#information" },
     { label: "Location", href: "#location" },
     { label: "Authors", href: "#authors" },
   ];
@@ -224,7 +189,7 @@ function WorkSidebar({ work }) {
 function WorkOverview({ work }) {
   return (
     <section id="overview" className="scroll-mt-24">
-      <SectionHeading number="01">Overview</SectionHeading>
+      <SectionHeading>Overview</SectionHeading>
 
       {work.description ? (
         <div className="max-w-4xl">
@@ -244,7 +209,7 @@ function WorkGallery({ photos, title }) {
 
   return (
     <section id="gallery" className="scroll-mt-24">
-      <SectionHeading number="02">Gallery</SectionHeading>
+      <SectionHeading>Gallery</SectionHeading>
 
       <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2">
         {photos.map((photo, index) => {
@@ -285,109 +250,6 @@ function WorkGallery({ photos, title }) {
   );
 }
 
-function WorkInformation({ work }) {
-  const information = [
-    {
-      label: "Construction started",
-      value: work.year_start,
-    },
-    {
-      label: "Construction completed",
-      value: work.year_end,
-    },
-    {
-      label: "Investor",
-      value: work.investor,
-    },
-    {
-      label: "Intervention type",
-      value: work.intervention_type,
-    },
-    {
-      label: "Protection status",
-      value: work.protection_status,
-    },
-    {
-      label: "Project status",
-      value: work.status,
-    },
-    {
-      label: "Category",
-      value: work.legacy_category,
-    },
-  ].filter(
-    (item) =>
-      item.value !== null && item.value !== undefined && item.value !== "",
-  );
-
-  const technicalInformation = [
-    {
-      label: "Record created",
-      value: formatDate(work.created_at),
-    },
-    {
-      label: "Last updated",
-      value: formatDate(work.updated_at),
-    },
-  ];
-
-  return (
-    <section id="information" className="scroll-mt-24">
-      <SectionHeading number="03">Information</SectionHeading>
-
-      {information.length > 0 ? (
-        <dl>
-          {information.map((item) => (
-            <div
-              key={item.label}
-              className="grid grid-cols-1 gap-2 border-b border-neutral-200 py-5 sm:grid-cols-3 sm:gap-8"
-            >
-              <dt className="text-sm text-neutral-500">{item.label}</dt>
-
-              <dd className="text-sm font-medium sm:col-span-2">
-                {item.value}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      ) : (
-        <p className="text-neutral-500">
-          No additional project information available.
-        </p>
-      )}
-
-      {/* Technical metadata is intentionally secondary. */}
-
-      {(work.created_at || work.updated_at) && (
-        <details className="mt-8 border-t border-neutral-200 pt-5">
-          <summary className="cursor-pointer text-xs uppercase tracking-wider text-neutral-500 hover:text-black">
-            Technical record details
-          </summary>
-
-          <dl className="mt-4 space-y-3">
-            {technicalInformation.map((item) => (
-              <div
-                key={item.label}
-                className="flex flex-wrap justify-between gap-4 text-sm"
-              >
-                <dt className="text-neutral-500">{item.label}</dt>
-                <dd>{item.value}</dd>
-              </div>
-            ))}
-
-            {work.id && (
-              <div className="flex flex-wrap justify-between gap-4 text-sm">
-                <dt className="text-neutral-500">Work ID</dt>
-                <dd className="break-all font-mono text-xs">{work.id}</dd>
-              </div>
-            )}
-          </dl>
-        </details>
-      )}
-    </section>
-  );
-}
-
 function WorkLocation({ work, lat, lng }) {
   const hasCoordinates =
     Number.isFinite(lat) &&
@@ -403,7 +265,7 @@ function WorkLocation({ work, lat, lng }) {
 
   return (
     <section id="location" className="scroll-mt-24">
-      <SectionHeading number="04">Location</SectionHeading>
+      <SectionHeading>Location</SectionHeading>
 
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
@@ -471,7 +333,7 @@ function WorkLocation({ work, lat, lng }) {
 function WorkAuthors({ work }) {
   return (
     <section id="authors" className="scroll-mt-24">
-      <SectionHeading number="05">Authors & Connections</SectionHeading>
+      <SectionHeading>Authors & Connections</SectionHeading>
 
       <p className="mb-8 max-w-2xl text-base leading-relaxed text-neutral-600">
         Explore the relationships between this project, its authors, and other
@@ -594,8 +456,6 @@ export default function WorkDetails() {
               <WorkOverview work={work} />
 
               <WorkGallery photos={photos} title={work.title} />
-
-              <WorkInformation work={work} />
 
               <WorkLocation work={work} lat={lat} lng={lng} />
 

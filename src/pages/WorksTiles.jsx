@@ -77,16 +77,8 @@ export default function WorksTiles({ filters }) {
             <div className="p-5">
               <h2 className="text-xl font-semibold mb-2">{work.title}</h2>
 
-              <p className="text-gray-600 text-sm mb-4">{work.description}</p>
-
               <div className="text-sm text-gray-500">
-                <p>
-                  {work.city}, {work.country}
-                </p>
-
-                <p>{work.category}</p>
-
-                <p>{work.typology}</p>
+                <p>{work.city}</p>
               </div>
             </div>
           </Link>
