@@ -13,6 +13,7 @@ export default function CarouselSection({
   renderTitle,
 }) {
   console.log("CarouselSection items:", items);
+
   return (
     <section className="bg-white py-20">
       <div className="text-center max-w-5xl mx-auto mb-16 px-6">
@@ -41,21 +42,35 @@ export default function CarouselSection({
             },
           }}
         >
-          {items.map((item) => (
-            <SwiperSlide key={item.id}>
-              <div className="h-100 overflow-hidden">
-                <img
-                  src={renderImage(item)}
-                  alt={item.alt_text || item.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
+          {items.map((item) => {
+            const image = renderImage(item);
 
-              {renderTitle && (
-                <h3 className="text-xl font-bold mt-4">{renderTitle(item)}</h3>
-              )}
-            </SwiperSlide>
-          ))}
+            return (
+              <SwiperSlide key={item.id}>
+                <div className="h-100 overflow-hidden">
+                  {image ? (
+                    <img
+                      src={image}
+                      alt={item.alt_text || item.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                      <span className="text-gray-500 font-bold text-xl uppercase">
+                        No Photo
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {renderTitle && (
+                  <h3 className="text-xl font-bold mt-4">
+                    {renderTitle(item)}
+                  </h3>
+                )}
+              </SwiperSlide>
+            );
+          })}
         </Swiper>
       </div>
 

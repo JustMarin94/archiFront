@@ -48,21 +48,20 @@ export default function App() {
       max-w-5xl
     "
         >
-          Arheološka evidencija
+          Arhitektura Jadrana
         </h1>
 
         <p
           className="
       mt-8
-      text-lg
-      md:text-xl
+      text-xl
+      md:text-7xl
       max-w-3xl
       leading-relaxed
       text-gray-700
     "
         >
-          Digitalna mapa arheoloških nalaza koja povezuje projekte, autore i
-          fotografe na jednom mjestu.
+          Digitalni arhiv izvrsnosti
         </p>
 
         <button

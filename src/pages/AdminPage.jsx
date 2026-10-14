@@ -412,33 +412,78 @@ function AuthorForm({ initialData, onSubmit, onCancel }) {
 }
 
 /* --- WORK FORM SUB-COMPONENT (Handles Relationships & Photos) --- */
+/* --- WORK FORM SUB-COMPONENT --- */
 function WorkForm({ initialData, authorsList, onSubmit, onCancel }) {
+  const existingAuthor =
+    initialData?.authors?.[0] || initialData?.work_authors?.[0] || {};
+
   const [formData, setFormData] = useState({
     title: initialData?.title || "",
     description: initialData?.description || "",
     typology: initialData?.typology || "",
     city: initialData?.city || "",
     region: initialData?.region || "",
+    address: initialData?.address || "",
+    postal_code: initialData?.postal_code || "",
+    latitude: initialData?.latitude || "",
+    longitude: initialData?.longitude || "",
     year_start: initialData?.year_start || "",
     year_end: initialData?.year_end || "",
-    author_id: initialData?.authors?.[0]?.id || "",
-    role: initialData?.authors?.[0]?.role || "",
-    photo_url: initialData?.photos?.[0]?.url || "",
+    investor: initialData?.investor || "",
+    protection_status: initialData?.protection_status || "",
+    status: initialData?.status || "",
+    intervention_type: initialData?.intervention_type || "",
+    legacy_category: initialData?.legacy_category || "",
+    author_id:
+      existingAuthor.author_id ||
+      existingAuthor.id ||
+      initialData?.author_ids?.[0] ||
+      "",
+    role: existingAuthor.role || "",
+    // Initialize with existing photos array or an empty row
+    photos: initialData?.photos || [{ url: "", caption: "", alt_text: "" }],
   });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // --- Photo List Handlers ---
+  const handlePhotoChange = (index, field, value) => {
+    const updatedPhotos = [...formData.photos];
+    updatedPhotos[index][field] = value;
+    setFormData({ ...formData, photos: updatedPhotos });
+  };
+
+  const addPhotoRow = () => {
+    setFormData({
+      ...formData,
+      photos: [...formData.photos, { url: "", caption: "", alt_text: "" }],
+    });
+  };
+
+  const removePhotoRow = (index) => {
+    const updatedPhotos = formData.photos.filter((_, i) => i !== index);
+    setFormData({ ...formData, photos: updatedPhotos });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const payload = {
       ...formData,
+      latitude: formData.latitude ? parseFloat(formData.latitude) : null,
+      longitude: formData.longitude ? parseFloat(formData.longitude) : null,
+      year_start: formData.year_start
+        ? parseInt(formData.year_start, 10)
+        : null,
+      year_end: formData.year_end ? parseInt(formData.year_end, 10) : null,
       authors: formData.author_id
         ? [{ author_id: formData.author_id, role: formData.role }]
         : [],
-      photos: formData.photo_url ? [{ url: formData.photo_url }] : [],
+      // Filter out empty photo rows before submitting
+      photos: formData.photos.filter((p) => p.url.trim() !== ""),
     };
+
     onSubmit(payload, () => {
       // Clear form after successful submit
       setFormData({
@@ -447,89 +492,228 @@ function WorkForm({ initialData, authorsList, onSubmit, onCancel }) {
         typology: "",
         city: "",
         region: "",
+        address: "",
+        postal_code: "",
+        latitude: "",
+        longitude: "",
         year_start: "",
         year_end: "",
+        investor: "",
+        protection_status: "",
+        status: "",
+        intervention_type: "",
+        legacy_category: "",
         author_id: "",
         role: "",
-        photo_url: "",
+        photos: [{ url: "", caption: "", alt_text: "" }],
       });
     });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Work Title *
-          </label>
-          <input
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Typology
-          </label>
-          <input
-            name="typology"
-            value={formData.typology}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          />
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Basic Information */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-3">
+          Basic Information
+        </h3>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Work Title *
+            </label>
+            <input
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Typology
+            </label>
+            <input
+              name="typology"
+              value={formData.typology}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
         </div>
       </div>
 
-      <div className="grid md:grid-cols-4 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            City
-          </label>
-          <input
-            name="city"
-            value={formData.city}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          />
+      {/* Location & Coordinates */}
+      <div className="border-t border-gray-200 pt-4">
+        <h3 className="text-lg font-semibold text-gray-800 mb-3">
+          Location & Coordinates
+        </h3>
+        <div className="grid md:grid-cols-3 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Address
+            </label>
+            <input
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              City
+            </label>
+            <input
+              name="city"
+              value={formData.city}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Region
+            </label>
+            <input
+              name="region"
+              value={formData.region}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Region
-          </label>
-          <input
-            name="region"
-            value={formData.region}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          />
+
+        <div className="grid md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Postal Code
+            </label>
+            <input
+              name="postal_code"
+              value={formData.postal_code}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Latitude
+            </label>
+            <input
+              name="latitude"
+              type="number"
+              step="any"
+              value={formData.latitude}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Longitude
+            </label>
+            <input
+              name="longitude"
+              type="number"
+              step="any"
+              value={formData.longitude}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Year Start
-          </label>
-          <input
-            name="year_start"
-            type="number"
-            value={formData.year_start}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          />
+      </div>
+
+      {/* Timeline & Project Details */}
+      <div className="border-t border-gray-200 pt-4">
+        <h3 className="text-lg font-semibold text-gray-800 mb-3">
+          Timeline & Details
+        </h3>
+        <div className="grid md:grid-cols-4 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Year Start
+            </label>
+            <input
+              name="year_start"
+              type="number"
+              value={formData.year_start}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Year End
+            </label>
+            <input
+              name="year_end"
+              type="number"
+              value={formData.year_end}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Status
+            </label>
+            <input
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Investor
+            </label>
+            <input
+              name="investor"
+              value={formData.investor}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Year End
-          </label>
-          <input
-            name="year_end"
-            type="number"
-            value={formData.year_end}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          />
+
+        <div className="grid md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Protection Status
+            </label>
+            <input
+              name="protection_status"
+              value={formData.protection_status}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Intervention Type
+            </label>
+            <input
+              name="intervention_type"
+              value={formData.intervention_type}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Legacy Category
+            </label>
+            <input
+              name="legacy_category"
+              value={formData.legacy_category}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
         </div>
       </div>
 
@@ -546,7 +730,7 @@ function WorkForm({ initialData, authorsList, onSubmit, onCancel }) {
         />
       </div>
 
-      {/* Relationship Management Field */}
+      {/* Author Relationship */}
       <div className="border-t border-gray-200 pt-4">
         <h3 className="text-lg font-medium text-gray-800 mb-3">
           Author Relationship
@@ -584,19 +768,85 @@ function WorkForm({ initialData, authorsList, onSubmit, onCancel }) {
         </div>
       </div>
 
-      {/* Photo Management Field */}
+      {/* Dynamic Multi-Photo Management */}
       <div className="border-t border-gray-200 pt-4">
-        <h3 className="text-lg font-medium text-gray-800 mb-3">Work Photo</h3>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Photo Image URL
-          </label>
-          <input
-            name="photo_url"
-            value={formData.photo_url}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          />
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="text-lg font-medium text-gray-800">Work Pictures</h3>
+          <button
+            type="button"
+            onClick={addPhotoRow}
+            className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition"
+          >
+            + Add Picture
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {formData.photos.map((photo, index) => (
+            <div
+              key={index}
+              className="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-3 relative"
+            >
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-semibold text-gray-700">
+                  Picture #{index + 1}
+                </span>
+                {formData.photos.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removePhotoRow(index)}
+                    className="text-red-600 hover:text-red-800 text-sm font-medium"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+              <div className="grid md:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Image URL *
+                  </label>
+                  <input
+                    type="text"
+                    value={photo.url}
+                    onChange={(e) =>
+                      handlePhotoChange(index, "url", e.target.value)
+                    }
+                    placeholder="https://..."
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Caption
+                  </label>
+                  <input
+                    type="text"
+                    value={photo.caption || ""}
+                    onChange={(e) =>
+                      handlePhotoChange(index, "caption", e.target.value)
+                    }
+                    placeholder="Photo caption"
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Alt Text
+                  </label>
+                  <input
+                    type="text"
+                    value={photo.alt_text || ""}
+                    onChange={(e) =>
+                      handlePhotoChange(index, "alt_text", e.target.value)
+                    }
+                    placeholder="Description for accessibility"
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
