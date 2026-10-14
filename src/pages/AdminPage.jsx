@@ -140,7 +140,7 @@ export default function AdminDashboard() {
                       onSuccess: () => {
                         queryClient.invalidateQueries({ queryKey: ["works"] });
                         setEditingItem(null);
-                        if (resetForm) resetForm(); // Clears the form fields!
+                        if (resetForm) resetForm();
                         alert("Work saved successfully!");
                       },
                     });
@@ -210,7 +210,7 @@ export default function AdminDashboard() {
                           queryKey: ["authors"],
                         });
                         setEditingItem(null);
-                        if (resetForm) resetForm(); // Clears the form fields!
+                        if (resetForm) resetForm();
                         alert("Author saved successfully!");
                       },
                     });
@@ -237,7 +237,14 @@ export default function AdminDashboard() {
                             {author.full_name}
                           </h3>
                           <p className="text-sm text-gray-600">
-                            Awards: {author.awards || "None"}
+                            Awards:{" "}
+                            {Array.isArray(author.awards) &&
+                            author.awards.length > 0
+                              ? author.awards.map((a) => a.title).join(", ")
+                              : typeof author.awards === "string" &&
+                                  author.awards
+                                ? author.awards
+                                : "None"}
                           </p>
                         </div>
                         <div className="space-x-3">
@@ -271,42 +278,101 @@ export default function AdminDashboard() {
 
 /* --- AUTHOR FORM SUB-COMPONENT --- */
 function AuthorForm({ initialData, onSubmit, onCancel }) {
+  const formatYearForInput = (year) => {
+    if (!year) return "";
+    return String(year);
+  };
+
   const [formData, setFormData] = useState({
     full_name: initialData?.full_name || "",
-    birth_year: initialData?.birth_year || "",
-    death_year: initialData?.death_year || "",
+    birth_year: formatYearForInput(initialData?.birth_year),
+    death_year: formatYearForInput(initialData?.death_year),
     education: initialData?.education || "",
-    awards: initialData?.awards || "",
     description: initialData?.description || "",
+    awards:
+      Array.isArray(initialData?.awards) && initialData?.awards.length > 0
+        ? initialData.awards
+        : [{ title: "", year: "", description: "" }],
+    photos: initialData?.photos || [{ url: "", caption: "", alt_text: "" }],
   });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // --- Award List Handlers ---
+  const handleAwardChange = (index, field, value) => {
+    const updatedAwards = [...formData.awards];
+    updatedAwards[index][field] = value;
+    setFormData({ ...formData, awards: updatedAwards });
+  };
+
+  const addAwardRow = () => {
+    setFormData({
+      ...formData,
+      awards: [...formData.awards, { title: "", year: "", description: "" }],
+    });
+  };
+
+  const removeAwardRow = (index) => {
+    const updatedAwards = formData.awards.filter((_, i) => i !== index);
+    setFormData({ ...formData, awards: updatedAwards });
+  };
+
+  // --- Photo List Handlers ---
+  const handlePhotoChange = (index, field, value) => {
+    const updatedPhotos = [...formData.photos];
+    updatedPhotos[index][field] = value;
+    setFormData({ ...formData, photos: updatedPhotos });
+  };
+
+  const addPhotoRow = () => {
+    setFormData({
+      ...formData,
+      photos: [...formData.photos, { url: "", caption: "", alt_text: "" }],
+    });
+  };
+
+  const removePhotoRow = (index) => {
+    const updatedPhotos = formData.photos.filter((_, i) => i !== index);
+    setFormData({ ...formData, photos: updatedPhotos });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Extract just the year (e.g., "2025") from the date string ("2025-12-17")
+    const parseYear = (val) => {
+      if (!val) return null;
+      if (typeof val === "string" && val.includes("-")) {
+        return parseInt(val.split("-")[0], 10);
+      }
+      return parseInt(val, 10) || null;
+    };
+
     const payload = {
       ...formData,
-      birth_year: formData.birth_year
-        ? parseInt(formData.birth_year.split("-")[0])
-        : null,
-      death_year: formData.death_year
-        ? parseInt(formData.death_year.split("-")[0])
-        : null,
+      birth_year: parseYear(formData.birth_year),
+      death_year: parseYear(formData.death_year),
+      // Filter out empty award entries before submitting
+      awards: formData.awards
+        .filter((a) => a.title && a.title.trim() !== "")
+        .map((a) => ({
+          ...a,
+          year: a.year ? parseInt(a.year, 10) : null,
+        })),
+      // Filter out empty photo rows before submitting
+      photos: formData.photos.filter((p) => p.url && p.url.trim() !== ""),
     };
 
     onSubmit(payload, () => {
-      // Clear form after successful submit
       setFormData({
         full_name: "",
         birth_year: "",
         death_year: "",
         education: "",
-        awards: "",
         description: "",
+        awards: [{ title: "", year: "", description: "" }],
+        photos: [{ url: "", caption: "", alt_text: "" }],
       });
     });
   };
@@ -339,14 +405,15 @@ function AuthorForm({ initialData, onSubmit, onCancel }) {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-4">
+      <div className="grid md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Birth Date
+            Birth Date / Year
           </label>
           <input
             name="birth_year"
-            type="date"
+            type="text"
+            placeholder="e.g. 1985 or YYYY-MM-DD"
             value={formData.birth_year}
             onChange={handleChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -354,23 +421,13 @@ function AuthorForm({ initialData, onSubmit, onCancel }) {
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Death Date
+            Death Date / Year
           </label>
           <input
             name="death_year"
-            type="date"
+            type="text"
+            placeholder="e.g. 2060 or YYYY-MM-DD"
             value={formData.death_year}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Awards
-          </label>
-          <input
-            name="awards"
-            value={formData.awards}
             onChange={handleChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
@@ -388,6 +445,170 @@ function AuthorForm({ initialData, onSubmit, onCancel }) {
           onChange={handleChange}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
         />
+      </div>
+
+      {/* Dynamic Multi-Award Management */}
+      <div className="border-t border-gray-200 pt-4">
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="text-lg font-medium text-gray-800">Author Awards</h3>
+          <button
+            type="button"
+            onClick={addAwardRow}
+            className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition"
+          >
+            + Add Award
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {formData.awards.map((award, index) => (
+            <div
+              key={index}
+              className="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-3 relative"
+            >
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-semibold text-gray-700">
+                  Award #{index + 1}
+                </span>
+                {formData.awards.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeAwardRow(index)}
+                    className="text-red-600 hover:text-red-800 text-sm font-medium"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+              <div className="grid md:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Award Title *
+                  </label>
+                  <input
+                    type="text"
+                    value={award.title || ""}
+                    onChange={(e) =>
+                      handleAwardChange(index, "title", e.target.value)
+                    }
+                    placeholder="e.g. Pritzker Architecture Prize"
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Year
+                  </label>
+                  <input
+                    type="number"
+                    value={award.year || ""}
+                    onChange={(e) =>
+                      handleAwardChange(index, "year", e.target.value)
+                    }
+                    placeholder="YYYY"
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Description
+                  </label>
+                  <input
+                    type="text"
+                    value={award.description || ""}
+                    onChange={(e) =>
+                      handleAwardChange(index, "description", e.target.value)
+                    }
+                    placeholder="Optional details"
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Dynamic Multi-Photo Management */}
+      <div className="border-t border-gray-200 pt-4">
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="text-lg font-medium text-gray-800">Author Pictures</h3>
+          <button
+            type="button"
+            onClick={addPhotoRow}
+            className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition"
+          >
+            + Add Picture
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {formData.photos.map((photo, index) => (
+            <div
+              key={index}
+              className="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-3 relative"
+            >
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-semibold text-gray-700">
+                  Picture #{index + 1}
+                </span>
+                {formData.photos.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removePhotoRow(index)}
+                    className="text-red-600 hover:text-red-800 text-sm font-medium"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+              <div className="grid md:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Image URL *
+                  </label>
+                  <input
+                    type="text"
+                    value={photo.url}
+                    onChange={(e) =>
+                      handlePhotoChange(index, "url", e.target.value)
+                    }
+                    placeholder="https://..."
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Caption
+                  </label>
+                  <input
+                    type="text"
+                    value={photo.caption || ""}
+                    onChange={(e) =>
+                      handlePhotoChange(index, "caption", e.target.value)
+                    }
+                    placeholder="Photo caption"
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Alt Text
+                  </label>
+                  <input
+                    type="text"
+                    value={photo.alt_text || ""}
+                    onChange={(e) =>
+                      handlePhotoChange(index, "alt_text", e.target.value)
+                    }
+                    placeholder="Description for accessibility"
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="flex space-x-3 pt-2">
@@ -411,7 +632,6 @@ function AuthorForm({ initialData, onSubmit, onCancel }) {
   );
 }
 
-/* --- WORK FORM SUB-COMPONENT (Handles Relationships & Photos) --- */
 /* --- WORK FORM SUB-COMPONENT --- */
 function WorkForm({ initialData, authorsList, onSubmit, onCancel }) {
   const existingAuthor =
@@ -440,7 +660,6 @@ function WorkForm({ initialData, authorsList, onSubmit, onCancel }) {
       initialData?.author_ids?.[0] ||
       "",
     role: existingAuthor.role || "",
-    // Initialize with existing photos array or an empty row
     photos: initialData?.photos || [{ url: "", caption: "", alt_text: "" }],
   });
 
@@ -448,7 +667,6 @@ function WorkForm({ initialData, authorsList, onSubmit, onCancel }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // --- Photo List Handlers ---
   const handlePhotoChange = (index, field, value) => {
     const updatedPhotos = [...formData.photos];
     updatedPhotos[index][field] = value;
@@ -480,12 +698,10 @@ function WorkForm({ initialData, authorsList, onSubmit, onCancel }) {
       authors: formData.author_id
         ? [{ author_id: formData.author_id, role: formData.role }]
         : [],
-      // Filter out empty photo rows before submitting
       photos: formData.photos.filter((p) => p.url.trim() !== ""),
     };
 
     onSubmit(payload, () => {
-      // Clear form after successful submit
       setFormData({
         title: "",
         description: "",
@@ -850,7 +1066,7 @@ function WorkForm({ initialData, authorsList, onSubmit, onCancel }) {
         </div>
       </div>
 
-      <div className="flex space-x-3 pt-4">
+      <div className="flex space-x-3 pt-2">
         <button
           type="submit"
           className="px-5 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
