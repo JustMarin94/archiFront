@@ -9,6 +9,8 @@ export default defineConfig({
     sourcemap: true,
   },
   server: {
-    allowedHosts: ["3994-93-136-134-189.ngrok-free.app"],
+    allowedHosts: [
+      "637a-2a05-4f44-30d-9100-8183-7b2d-d5b5-14bc.ngrok-free.app",
+    ],
   },
 });

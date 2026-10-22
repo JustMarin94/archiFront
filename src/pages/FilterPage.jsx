@@ -3,7 +3,6 @@ import { useSearchParams } from "react-router-dom";
 import AuthorsTiles from "./AuthorsTiles";
 import WorksTiles from "./WorksTiles";
 import Filter from "../components/Filter";
-import Navbar from "../shared/Navbar";
 
 export default function FilterPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -49,7 +48,7 @@ export default function FilterPage() {
 
   return (
     <div>
-      <Navbar />
+      {/*  <Navbar /> */}
 
       <div className="p-8 space-y-6">
         <Filter

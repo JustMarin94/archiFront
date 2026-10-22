@@ -3,10 +3,11 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import { Link } from "react-router-dom";
 
 import { api } from "../api/client";
-import AuthorGraph from "../components/AuthorGraph";
 import Navbar from "../shared/Navbar";
+import Footer from "../shared/Footer";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -77,7 +78,13 @@ function WorkHero({ work, photos }) {
 
           <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-xl text-neutral-600">
             {work.authors?.map((author) => (
-              <span key={author.id}>{author.name}</span>
+              <Link
+                key={author.id}
+                to={`/authors/${author.id}`}
+                className="hover:text-black underline underline-offset-4 transition-colors"
+              >
+                {author.name}
+              </Link>
             ))}
           </div>
         </div>
@@ -205,7 +212,7 @@ function WorkOverview({ work }) {
 }
 
 function WorkGallery({ photos, title }) {
-  if (photos.length === 0) return null;
+  if (!photos || photos.length === 0) return null;
 
   return (
     <section id="gallery" className="scroll-mt-24">
@@ -213,19 +220,20 @@ function WorkGallery({ photos, title }) {
 
       <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2">
         {photos.map((photo, index) => {
-          const isFeatured = index === 0 || index % 4 === 0;
+          // Every 3rd item (index 2, 5, 8, etc.) will span both columns
+          const isFullWidth = index % 3 === 2;
 
           return (
             <figure
               key={photo.id ?? `${photo.url}-${index}`}
-              className={isFeatured ? "sm:col-span-2" : ""}
+              className={isFullWidth ? "sm:col-span-2" : ""}
             >
               <img
-                src={getImageUrl(photo, isFeatured ? 1800 : 1000)}
+                src={getImageUrl(photo, isFullWidth ? 1800 : 1200)}
                 alt={photo.alt_text || `${title} — photograph ${index + 1}`}
                 loading="lazy"
-                className={`w-full object-cover ${
-                  isFeatured ? "max-h-[760px] aspect-[16/9]" : "aspect-[4/3]"
+                className={`w-full object-cover rounded-sm ${
+                  isFullWidth ? "aspect-[16/9]" : "aspect-[1/1]"
                 }`}
               />
 
@@ -330,18 +338,46 @@ function WorkLocation({ work, lat, lng }) {
   );
 }
 
-function WorkAuthors({ work }) {
+export function WorkAuthors({ work }) {
+  const authors = work?.authors ?? [];
+
   return (
     <section id="authors" className="scroll-mt-24">
       <SectionHeading>Authors & Connections</SectionHeading>
 
-      <p className="mb-8 max-w-2xl text-base leading-relaxed text-neutral-600">
-        Explore the relationships between this project, its authors, and other
-        works in the archive.
-      </p>
+      <div className=" divide-y divide-neutral-200">
+        {authors.map((author) => (
+          <div
+            key={author.id}
+            className="py-5 flex items-center justify-between"
+          >
+            <div className="flex items-center gap-4">
+              <img
+                src={author.image || author.photo_url || "/default-author.png"}
+                alt={author.name || author.full_name}
+                className="w-35 h-35 rounded-full object-cover"
+              />
+              <div>
+                <Link
+                  to={`/authors/${author.id}`}
+                  className="font-semibold text-neutral-900 hover:underline text-lg"
+                >
+                  {author.name || author.full_name}
+                </Link>
+                <p className="text-xs text-neutral-500 uppercase tracking-wider">
+                  {author.role || "Lead Contributor"}
+                </p>
+              </div>
+            </div>
 
-      <div className="min-w-0">
-        <AuthorGraph work={work} />
+            <Link
+              to={`/authors/${author.id}`}
+              className="text-sm underline underline-offset-4 hover:text-neutral-500"
+            >
+              View Profile ↗
+            </Link>
+          </div>
+        ))}
       </div>
     </section>
   );
@@ -472,6 +508,8 @@ export default function WorkDetails() {
           </div>
         </footer>
       </main>
+
+      <Footer />
     </>
   );
 }

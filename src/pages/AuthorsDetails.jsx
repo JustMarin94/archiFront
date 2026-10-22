@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
 import Navbar from "../shared/Navbar";
+import Footer from "../shared/Footer";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -72,17 +73,10 @@ export default function AuthorDetails() {
 
       <main className="min-h-screen bg-neutral-50 py-10 md:py-16 px-4">
         <article className="max-w-6xl mx-auto">
-          {/* Hero image */}
-          <div className="relative overflow-hidden rounded-2xl bg-neutral-200">
-            <img
-              src={heroImage}
-              alt={photo?.alt_text || authorName}
-              className="w-full h-[300px] md:h-[480px] object-cover"
-            />
-
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-
-            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12">
+          {/* Hero Section with Portrait on the Right */}
+          <div className="relative overflow-hidden rounded-2xl bg-neutral-900 p-8 md:p-12 flex flex-col-reverse md:flex-row items-center justify-between gap-8">
+            {/* Left: Author Name & Lifespan (Preserved) */}
+            <div className="relative z-10 w-full md:w-2/3">
               <h1 className="text-3xl md:text-5xl font-semibold text-white">
                 {authorName}
               </h1>
@@ -93,6 +87,18 @@ export default function AuthorDetails() {
                 </p>
               )}
             </div>
+
+            {/* Right: Portrait Picture (3:4 ratio) */}
+            <div className="relative z-10 w-48 sm:w-56 md:w-64 shrink-0 overflow-hidden rounded-xl bg-neutral-800 shadow-2xl">
+              <img
+                src={heroImage}
+                alt={photo?.alt_text || authorName}
+                className="w-full aspect-[3/4] object-cover object-center"
+              />
+            </div>
+
+            {/* Background gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-neutral-900 via-neutral-900/90 to-black/40 pointer-events-none" />
           </div>
 
           {/* Main content grid */}
@@ -227,6 +233,7 @@ export default function AuthorDetails() {
           </div>
         </article>
       </main>
+      <Footer />
     </>
   );
 }
