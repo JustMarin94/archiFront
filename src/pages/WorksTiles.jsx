@@ -65,7 +65,7 @@ export default function WorksTiles({ filters }) {
               src={
                 work.photos?.find((photo) => photo.position === 0)?.url ||
                 work.photos?.[0]?.url ||
-                "https://images.unsplash.com/photo-1520587393050-c5298e1a8486?q=80&w=687&auto=format&fit=crop"
+                "https://plus.unsplash.com/premium_photo-1730910017220-886f29baf378?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
               }
               alt={
                 work.photos?.find((photo) => photo.position === 0)?.alt_text ||

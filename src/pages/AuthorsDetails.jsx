@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
 import Navbar from "../shared/Navbar";
@@ -58,7 +58,7 @@ export default function AuthorDetails() {
     photo?.url ||
     author.photo_url ||
     author.image ||
-    "https://images.unsplash.com/photo-1520587393050-c5298e1a8486?q=80&w=1600&auto=format&fit=crop";
+    "https://images.unsplash.com/photo-1708534317455-0d32d06dad4b?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D";
 
   const lifespan = [
     author.birth_year || null,
@@ -67,42 +67,47 @@ export default function AuthorDetails() {
     .filter(Boolean)
     .join(" – ");
 
+  const works = author.works || [];
+
   return (
     <>
       <Navbar />
 
       <main className="min-h-screen bg-neutral-50 py-10 md:py-16 px-4">
         <article className="max-w-6xl mx-auto">
-          {/* Hero Section with Portrait on the Right */}
-          <div className="relative overflow-hidden rounded-2xl bg-neutral-900 p-8 md:p-12 flex flex-col-reverse md:flex-row items-center justify-between gap-8">
-            {/* Left: Author Name & Lifespan (Preserved) */}
-            <div className="relative z-10 w-full md:w-2/3">
-              <h1 className="text-3xl md:text-5xl font-semibold text-white">
-                {authorName}
-              </h1>
+          {/* Header Section: Vertically Centered Name & Portrait */}
+          <div className="w-full max-w-7xl mx-auto py-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 items-end gap-8">
+              {/* Column 1: Author Name & Lifespan (Aligned to bottom) */}
+              <div className="text-left pb-2">
+                <h1 className="text-4xl md:text-6xl font-normal text-neutral-900 tracking-tight">
+                  {authorName}
+                </h1>
 
-              {lifespan && (
-                <p className="mt-3 text-base md:text-lg text-white/80">
-                  {lifespan}
-                </p>
-              )}
+                {lifespan && (
+                  <p className="mt-3 text-lg md:text-xl text-neutral-500">
+                    {lifespan}
+                  </p>
+                )}
+              </div>
+
+              {/* Column 2: Portrait Picture (Larger & Centered) */}
+              <div className="flex justify-center">
+                <div className="w-72 sm:w-80 md:w-96 shrink-0 overflow-hidden bg-white shadow-sm">
+                  <img
+                    src={heroImage}
+                    alt={photo?.alt_text || authorName}
+                    className="w-full aspect-[3/4] object-cover object-center"
+                  />
+                </div>
+              </div>
+
+              {/* Column 3: Empty Spacer (Balances Column 1 on desktop) */}
+              <div className="hidden md:block"></div>
             </div>
-
-            {/* Right: Portrait Picture (3:4 ratio) */}
-            <div className="relative z-10 w-48 sm:w-56 md:w-64 shrink-0 overflow-hidden rounded-xl bg-neutral-800 shadow-2xl">
-              <img
-                src={heroImage}
-                alt={photo?.alt_text || authorName}
-                className="w-full aspect-[3/4] object-cover object-center"
-              />
-            </div>
-
-            {/* Background gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-neutral-900 via-neutral-900/90 to-black/40 pointer-events-none" />
           </div>
-
           {/* Main content grid */}
-          <div className="mt-10 md:mt-14 grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-14">
+          <div className="mt-16 md:mt-24 grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-14">
             {/* Left sidebar */}
             <aside className="lg:col-span-1 space-y-8">
               <section className="border-t border-neutral-300 pt-5">
@@ -163,6 +168,63 @@ export default function AuthorDetails() {
                 </section>
               )}
 
+              {/* Author's Works / Projects Section */}
+              {works.length > 0 && (
+                <section id="works" className="scroll-mt-24">
+                  <div className="flex items-end justify-between gap-4 mb-5 border-b border-neutral-200 pb-3">
+                    <h2 className="text-2xl font-semibold text-neutral-900">
+                      Author Works & Projects
+                    </h2>
+                    <span className="text-sm text-neutral-500">
+                      {works.length} {works.length === 1 ? "work" : "works"}
+                    </span>
+                  </div>
+
+                  <div className="divide-y divide-neutral-200">
+                    {works.map((work) => (
+                      <div
+                        key={work.id}
+                        className="py-5 flex items-center justify-between gap-4"
+                      >
+                        <div className="flex items-center gap-4">
+                          <img
+                            src={
+                              work.photo_url ||
+                              work.image ||
+                              "/default-work.png"
+                            }
+                            alt={work.title}
+                            className="w-20 h-20 rounded-lg object-cover shrink-0 bg-neutral-200"
+                          />
+                          <div>
+                            <Link
+                              to={`/works/${work.id}`}
+                              className="font-semibold text-neutral-900 hover:underline text-lg"
+                            >
+                              {work.title}
+                            </Link>
+                            <p className="text-xs text-neutral-500 uppercase tracking-wider mt-1">
+                              {work.role || "Contributor"}
+                              {work.city && ` • ${work.city}`}
+                              {work.year_start &&
+                                ` (${work.year_start}${work.year_end ? `–${work.year_end}` : ""})`}
+                            </p>
+                          </div>
+                        </div>
+
+                        <Link
+                          to={`/works/${work.id}`}
+                          className="text-sm underline underline-offset-4 hover:text-neutral-500 shrink-0"
+                        >
+                          View Work ↗
+                        </Link>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Awards & Honors */}
               {Array.isArray(author.awards) && author.awards.length > 0 && (
                 <section>
                   <h2 className="text-2xl font-semibold text-neutral-900 mb-5">

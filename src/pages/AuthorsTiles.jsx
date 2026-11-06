@@ -64,7 +64,7 @@ export default function AuthorsTiles({ filters }) {
             <img
               src={
                 author.photo_url ||
-                "https://images.unsplash.com/photo-1520587393050-c5298e1a8486?q=80&w=687&auto=format&fit=crop"
+                "https://images.unsplash.com/photo-1708534317455-0d32d06dad4b?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
               }
               alt={author.alt_text || author.full_name}
               className="w-full h-64 object-cover"

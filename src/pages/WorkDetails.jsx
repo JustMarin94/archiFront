@@ -211,30 +211,63 @@ function WorkOverview({ work }) {
   );
 }
 
-function WorkGallery({ photos, title }) {
+function WorkGallery({ photos, title, photo_layout = "GRID" }) {
   if (!photos || photos.length === 0) return null;
+
+  // Sort photos according to their position in the database
+  const sortedPhotos = [...photos].sort(
+    (a, b) => (a.position ?? 0) - (b.position ?? 0),
+  );
+
+  const layout = photo_layout || "GRID";
 
   return (
     <section id="gallery" className="scroll-mt-24">
       <SectionHeading>Gallery</SectionHeading>
 
-      <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2">
-        {photos.map((photo, index) => {
-          // Every 3rd item (index 2, 5, 8, etc.) will span both columns
-          const isFullWidth = index % 3 === 2;
+      <div
+        className={
+          layout === "LIST"
+            ? "flex flex-col gap-y-10"
+            : "grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2"
+        }
+      >
+        {sortedPhotos.map((photo, index) => {
+          // MOSAIC: Every third photo spans both columns
+          const isMosaicFullWidth = layout === "MOSAIC" && index % 3 === 2;
+
+          // GRID: Always square
+          // MOSAIC: Full-width photos are landscape, others square
+          // LIST: Full-width elongated photos
+          const imageClass =
+            layout === "GRID"
+              ? "aspect-square"
+              : layout === "MOSAIC"
+                ? isMosaicFullWidth
+                  ? "aspect-[16/9]"
+                  : "aspect-square"
+                : "aspect-[16/9]";
+
+          const figureClass =
+            layout === "LIST"
+              ? "w-full"
+              : isMosaicFullWidth
+                ? "sm:col-span-2"
+                : "";
+
+          const imageWidth =
+            layout === "LIST" || isMosaicFullWidth ? 1800 : 1200;
 
           return (
             <figure
               key={photo.id ?? `${photo.url}-${index}`}
-              className={isFullWidth ? "sm:col-span-2" : ""}
+              className={figureClass}
             >
               <img
-                src={getImageUrl(photo, isFullWidth ? 1800 : 1200)}
+                src={getImageUrl(photo, imageWidth)}
                 alt={photo.alt_text || `${title} — photograph ${index + 1}`}
                 loading="lazy"
-                className={`w-full object-cover rounded-sm ${
-                  isFullWidth ? "aspect-[16/9]" : "aspect-[1/1]"
-                }`}
+                className={`w-full ${imageClass} object-cover rounded-sm`}
               />
 
               {(photo.caption || photo.alt_text) && (
@@ -491,7 +524,11 @@ export default function WorkDetails() {
             <div className="min-w-0 space-y-20 lg:col-span-9 lg:space-y-28">
               <WorkOverview work={work} />
 
-              <WorkGallery photos={photos} title={work.title} />
+              <WorkGallery
+                photos={photos}
+                title={work.title}
+                photo_layout={work.photo_layout}
+              />
 
               <WorkLocation work={work} lat={lat} lng={lng} />
 

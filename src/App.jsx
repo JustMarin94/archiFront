@@ -1,6 +1,7 @@
 import Footer from "./shared/Footer";
 import Navbar from "./shared/Navbar";
 import FilterPage from "./pages/FilterPage";
+import Map from "./shared/Map";
 
 export default function App() {
   return (
@@ -10,7 +11,7 @@ export default function App() {
       <section className=" min-h-125 flex flex-col justify-center items-center text-center px-6 mb-60 mt-30">
         <h1
           className="
-      text-6xl
+      text-3xl
       md:text-8xl
       font-black
       uppercase
@@ -35,6 +36,7 @@ export default function App() {
         </p>
       </section>
       <FilterPage />
+      <Map />
       <Footer />
     </>
   );
