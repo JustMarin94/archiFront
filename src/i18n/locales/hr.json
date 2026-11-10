@@ -1,0 +1,92 @@
+{
+  "nav": {
+    "home": "Početna",
+    "admin": "Unos (Admin)",
+    "login": "Prijava",
+    "logout": "Odjava"
+  },
+  "home": {
+    "title": "Arhitektura Jadrana",
+    "subtitle": "Digitalni arhiv izvrsnosti"
+  },
+  "filter": {
+    "works": "Radovi",
+    "authors": "Autori",
+    "allTitles": "Svi nazivi",
+    "allTypologies": "Sve tipologije",
+    "allAwards": "Sve nagrade",
+    "allAuthors": "Svi autori",
+    "allRegions": "Sve regije",
+    "period": "Razdoblje"
+  },
+  "map": {
+    "title": "Lokacije",
+    "subtitle": "Istražite arhitektonska djela kroz interaktivnu kartu Jadrana",
+    "clickToInteract": "Kliknite za interakciju s kartom"
+  },
+  "workDetails": {
+    "overview": "Pregled",
+    "gallery": "Galerija",
+    "location": "Lokacija",
+    "authors": "Autori i poveznice",
+    "projectDetails": "Detalji projekta",
+    "address": "Adresa",
+    "city": "Grad",
+    "region": "Regija",
+    "typology": "Tipologija",
+    "category": "Kategorija",
+    "construction": "Izgradnja",
+    "investor": "Investitor",
+    "intervention": "Intervencija",
+    "protection": "Zaštita",
+    "status": "Status",
+    "loadingProject": "Učitavanje projekta...",
+    "projectUnavailable": "Projekt nedostupan",
+    "unableToLoad": "Nije moguće učitati projekt",
+    "errorRetrieving": "Došlo je do pogreške prilikom dohvaćanja ovog projekta. Pokušajte ponovno kasnije.",
+    "tryAgain": "Pokušaj ponovno",
+    "yearUnknown": "Nepoznata godina",
+    "noDescription": "Opis projekta nije dostupan.",
+    "noImage": "Slika projekta nije dostupna",
+    "viewOpenStreetMap": "Pogledaj na OpenStreetMap ↗",
+    "coordinatesNotAvailable": "Koordinate lokacije nisu dostupne za ovaj projekt.",
+    "viewProfile": "Pogledaj profil ↗",
+    "leadContributor": "Glavni suradnik",
+    "worksCount": "radova"
+  },
+  "authorDetails": {
+    "loading": "Učitavanje autora...",
+    "failedToLoad": "Greška pri učitavanju autora.",
+    "present": "Danas",
+    "stillLiving": "Još uvijek živi / nepoznato",
+    "unknownAuthor": "Nepoznati autor",
+    "authorInformation": "Informacije o autoru",
+    "fullName": "Puno ime",
+    "birthYear": "Godina rođenja",
+    "deathYear": "Godina smrti",
+    "education": "Obrazovanje",
+    "biography": "Biografija",
+    "authorWorks": "Autorski radovi i projekti",
+    "awards": "Nagrade i priznanja",
+    "visualArchive": "Vizualni arhiv",
+    "gallery": "Galerija",
+    "viewWork": "Pogledaj rad ↗",
+    "contributor": "Suradnik",
+    "workSingular": "rad",
+    "workPlural": "radova",
+    "photoSingular": "fotografija",
+    "photoPlural": "fotografija"
+  },
+  "admin": {
+    "dashboardTitle": "Admin nadzorna ploča",
+    "dashboardSubtitle": "Upravljajte arhitektonskim radovima, autorima i odnosima.",
+    "manageWorks": "Upravljaj radovima",
+    "manageAuthors": "Upravljaj autorima"
+  },
+  "footer": {
+    "description": "Digitalni arhiv izvrsnosti + Digital archive dedicated to discovering, preserving and sharing architectural heritage across Europe.",
+    "support": "UZ PODRŠKU",
+    "supportAlt": "Arhitektonska komora",
+    "submitSuggestions": "Pošaljite prijedloge"
+  }
+}

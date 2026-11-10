@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { api } from "../api/client";
 import Navbar from "../shared/Navbar";
 import Footer from "../shared/Footer";
@@ -12,6 +13,7 @@ const fetchAuthor = async (id) => {
 };
 
 export default function AuthorDetails() {
+  const { t } = useTranslation();
   const { id } = useParams();
 
   const {
@@ -29,7 +31,9 @@ export default function AuthorDetails() {
       <>
         <Navbar />
         <div className="min-h-screen flex items-center justify-center">
-          <p className="text-lg text-neutral-500">Loading author...</p>
+          <p className="text-lg text-neutral-500">
+            {t("authorDetails.loading")}
+          </p>
         </div>
       </>
     );
@@ -40,19 +44,33 @@ export default function AuthorDetails() {
       <>
         <Navbar />
         <div className="min-h-screen flex items-center justify-center">
-          <p className="text-lg text-red-500">Failed to load author.</p>
+          <p className="text-lg text-red-500">
+            {t("authorDetails.failedToLoad")}
+          </p>
         </div>
       </>
     );
   }
 
-  const photos = [...(author.photos || [])].sort(
-    (a, b) => a.position - b.position,
-  );
+  const photos = [...(author.photos || [])].sort((a, b) => {
+    // 1. Prioritize is_main: true over false
+    if (Boolean(b.is_main) !== Boolean(a.is_main)) {
+      return (b.is_main ? 1 : 0) - (a.is_main ? 1 : 0);
+    }
+    // 2. Fall back to sorting by position
+    const posA = a.position ?? 0;
+    const posB = b.position ?? 0;
+    if (posA !== posB) {
+      return posA - posB;
+    }
+    // 3. Fall back to creation date
+    return new Date(a.created_at || 0) - new Date(b.created_at || 0);
+  });
 
   const photo = photos[0];
 
-  const authorName = author.full_name || author.name || "Unknown Author";
+  const authorName =
+    author.full_name || author.name || t("authorDetails.unknownAuthor");
 
   const heroImage =
     photo?.url ||
@@ -62,7 +80,8 @@ export default function AuthorDetails() {
 
   const lifespan = [
     author.birth_year || null,
-    author.death_year || (author.birth_year ? "Present" : null),
+    author.death_year ||
+      (author.birth_year ? t("authorDetails.present") : null),
   ]
     .filter(Boolean)
     .join(" – ");
@@ -112,20 +131,20 @@ export default function AuthorDetails() {
             <aside className="lg:col-span-1 space-y-8">
               <section className="border-t border-neutral-300 pt-5">
                 <h2 className="text-lg font-semibold text-neutral-900 mb-5">
-                  Author Information
+                  {t("authorDetails.authorInformation")}
                 </h2>
 
                 <dl className="space-y-5">
                   <div>
                     <dt className="text-xs uppercase tracking-wider text-neutral-500 mb-1">
-                      Full name
+                      {t("authorDetails.fullName")}
                     </dt>
                     <dd className="text-sm text-neutral-800">{authorName}</dd>
                   </div>
 
                   <div>
                     <dt className="text-xs uppercase tracking-wider text-neutral-500 mb-1">
-                      Birth year
+                      {t("authorDetails.birthYear")}
                     </dt>
                     <dd className="text-sm text-neutral-800">
                       {author.birth_year || "—"}
@@ -134,16 +153,16 @@ export default function AuthorDetails() {
 
                   <div>
                     <dt className="text-xs uppercase tracking-wider text-neutral-500 mb-1">
-                      Death year
+                      {t("authorDetails.deathYear")}
                     </dt>
                     <dd className="text-sm text-neutral-800">
-                      {author.death_year || "Still living / unknown"}
+                      {author.death_year || t("authorDetails.stillLiving")}
                     </dd>
                   </div>
 
                   <div>
                     <dt className="text-xs uppercase tracking-wider text-neutral-500 mb-1">
-                      Education
+                      {t("authorDetails.education")}
                     </dt>
                     <dd className="text-sm text-neutral-800">
                       {author.education || "—"}
@@ -159,7 +178,7 @@ export default function AuthorDetails() {
               {author.description && (
                 <section>
                   <h2 className="text-2xl font-semibold text-neutral-900 mb-5">
-                    Biography
+                    {t("authorDetails.biography")}
                   </h2>
 
                   <p className="text-base leading-8 text-neutral-600 whitespace-pre-line">
@@ -173,10 +192,13 @@ export default function AuthorDetails() {
                 <section id="works" className="scroll-mt-24">
                   <div className="flex items-end justify-between gap-4 mb-5 border-b border-neutral-200 pb-3">
                     <h2 className="text-2xl font-semibold text-neutral-900">
-                      Author Works & Projects
+                      {t("authorDetails.authorWorks")}
                     </h2>
                     <span className="text-sm text-neutral-500">
-                      {works.length} {works.length === 1 ? "work" : "works"}
+                      {works.length}{" "}
+                      {works.length === 1
+                        ? t("authorDetails.workSingular")
+                        : t("authorDetails.workPlural")}
                     </span>
                   </div>
 
@@ -204,7 +226,7 @@ export default function AuthorDetails() {
                               {work.title}
                             </Link>
                             <p className="text-xs text-neutral-500 uppercase tracking-wider mt-1">
-                              {work.role || "Contributor"}
+                              {work.role || t("authorDetails.contributor")}
                               {work.city && ` • ${work.city}`}
                               {work.year_start &&
                                 ` (${work.year_start}${work.year_end ? `–${work.year_end}` : ""})`}
@@ -216,7 +238,7 @@ export default function AuthorDetails() {
                           to={`/works/${work.id}`}
                           className="text-sm underline underline-offset-4 hover:text-neutral-500 shrink-0"
                         >
-                          View Work ↗
+                          {t("authorDetails.viewWork")}
                         </Link>
                       </div>
                     ))}
@@ -228,7 +250,7 @@ export default function AuthorDetails() {
               {Array.isArray(author.awards) && author.awards.length > 0 && (
                 <section>
                   <h2 className="text-2xl font-semibold text-neutral-900 mb-5">
-                    Awards & Honors
+                    {t("authorDetails.awards")}
                   </h2>
 
                   <ul className="space-y-3">
@@ -256,16 +278,19 @@ export default function AuthorDetails() {
                   <div className="flex items-end justify-between gap-4 mb-6">
                     <div>
                       <p className="text-xs uppercase tracking-[0.2em] text-neutral-500 mb-2">
-                        Visual archive
+                        {t("authorDetails.visualArchive")}
                       </p>
 
                       <h2 className="text-2xl font-semibold text-neutral-900">
-                        Gallery
+                        {t("authorDetails.gallery")}
                       </h2>
                     </div>
 
                     <span className="text-sm text-neutral-500">
-                      {photos.length} {photos.length === 1 ? "photo" : "photos"}
+                      {photos.length}{" "}
+                      {photos.length === 1
+                        ? t("authorDetails.photoSingular")
+                        : t("authorDetails.photoPlural")}
                     </span>
                   </div>
 

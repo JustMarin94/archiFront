@@ -1,9 +1,9 @@
-import { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { api } from "../api/client";
 import Navbar from "../shared/Navbar";
@@ -16,12 +16,12 @@ const fetchWork = async (id) => {
   return response.data;
 };
 
-const formatYearRange = (start, end) => {
+const formatYearRange = (start, end, yearUnknownText) => {
   if (start && end) {
     return start === end ? String(start) : `${start} — ${end}`;
   }
 
-  return start || end || "Year unknown";
+  return start || end || yearUnknownText;
 };
 
 const getImageUrl = (photo, width = 1600) => {
@@ -64,7 +64,11 @@ function MetadataItem({ label, value }) {
 }
 
 function WorkHero({ work, photos }) {
+  const { t, i18n } = useTranslation();
+  const isEnglish = i18n.language.startsWith("en");
   const featuredPhoto = photos[0];
+
+  const title = isEnglish ? work.title_en || work.title : work.title;
 
   return (
     <header className="bg-neutral-100">
@@ -73,7 +77,7 @@ function WorkHero({ work, photos }) {
 
         <div className="flex flex-col justify-end lg:col-span-5">
           <h1 className="max-w-2xl text-5xl font-bold leading-[0.95] tracking-[-0.06em] text-black sm:text-6xl lg:text-7xl xl:text-8xl">
-            {work.title}
+            {title}
           </h1>
 
           <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-xl text-neutral-600">
@@ -97,8 +101,7 @@ function WorkHero({ work, photos }) {
               <img
                 src={getImageUrl(featuredPhoto, 1800)}
                 alt={
-                  featuredPhoto.alt_text ||
-                  `Featured photograph of ${work.title}`
+                  featuredPhoto.alt_text || `Featured photograph of ${title}`
                 }
                 fetchPriority="high"
                 className="h-[280px] w-full object-cover sm:h-[400px] lg:h-[420px]"
@@ -116,7 +119,7 @@ function WorkHero({ work, photos }) {
             </figure>
           ) : (
             <div className="flex h-[280px] items-center justify-center bg-neutral-200 text-sm text-neutral-500 sm:h-[400px] lg:h-[420px]">
-              No project image available
+              {t("workDetails.noImage")}
             </div>
           )}
         </div>
@@ -126,11 +129,12 @@ function WorkHero({ work, photos }) {
 }
 
 function WorkNavigation() {
+  const { t } = useTranslation();
   const links = [
-    { label: "Overview", href: "#overview" },
-    { label: "Gallery", href: "#gallery" },
-    { label: "Location", href: "#location" },
-    { label: "Authors", href: "#authors" },
+    { label: t("workDetails.overview"), href: "#overview" },
+    { label: t("workDetails.gallery"), href: "#gallery" },
+    { label: t("workDetails.location"), href: "#location" },
+    { label: t("workDetails.authors"), href: "#authors" },
   ];
 
   return (
@@ -154,39 +158,72 @@ function WorkNavigation() {
 }
 
 function WorkSidebar({ work }) {
+  const { t, i18n } = useTranslation();
+  const isEnglish = i18n.language.startsWith("en");
+
+  const typology = isEnglish
+    ? work.typology_en || work.typology
+    : work.typology;
+  const investor = isEnglish
+    ? work.investor_en || work.investor
+    : work.investor;
+  const legacyCategory = isEnglish
+    ? work.legacy_category_en || work.legacy_category
+    : work.legacy_category;
+  const interventionType = isEnglish
+    ? work.intervention_type_en || work.intervention_type
+    : work.intervention_type;
+  const protectionStatus = isEnglish
+    ? work.protection_status_en || work.protection_status
+    : work.protection_status;
+  const status = isEnglish ? work.status_en || work.status : work.status;
+
   return (
     <aside className="lg:sticky lg:top-24 lg:self-start">
       <div className="border-t border-black pt-5">
         <p className="mb-5 text-xs uppercase tracking-[0.15em] text-neutral-500">
-          Project details
+          {t("workDetails.projectDetails")}
         </p>
 
         <dl>
-          <MetadataItem label="Address" value={work.address} />
+          <MetadataItem label={t("workDetails.address")} value={work.address} />
 
           <MetadataItem
-            label="City"
+            label={t("workDetails.city")}
             value={[work.postal_code, work.city].filter(Boolean).join(" ")}
           />
 
-          <MetadataItem label="Region" value={work.region} />
+          <MetadataItem label={t("workDetails.region")} value={work.region} />
 
-          <MetadataItem label="Typology" value={work.typology} />
-
-          <MetadataItem label="Category" value={work.legacy_category} />
+          <MetadataItem label={t("workDetails.typology")} value={typology} />
 
           <MetadataItem
-            label="Construction"
-            value={formatYearRange(work.year_start, work.year_end)}
+            label={t("workDetails.category")}
+            value={legacyCategory}
           />
 
-          <MetadataItem label="Investor" value={work.investor} />
+          <MetadataItem
+            label={t("workDetails.construction")}
+            value={formatYearRange(
+              work.year_start,
+              work.year_end,
+              t("workDetails.yearUnknown"),
+            )}
+          />
 
-          <MetadataItem label="Intervention" value={work.intervention_type} />
+          <MetadataItem label={t("workDetails.investor")} value={investor} />
 
-          <MetadataItem label="Protection" value={work.protection_status} />
+          <MetadataItem
+            label={t("workDetails.intervention")}
+            value={interventionType}
+          />
 
-          <MetadataItem label="Status" value={work.status} />
+          <MetadataItem
+            label={t("workDetails.protection")}
+            value={protectionStatus}
+          />
+
+          <MetadataItem label={t("workDetails.status")} value={status} />
         </dl>
       </div>
     </aside>
@@ -194,27 +231,34 @@ function WorkSidebar({ work }) {
 }
 
 function WorkOverview({ work }) {
+  const { t, i18n } = useTranslation();
+  const isEnglish = i18n.language.startsWith("en");
+
+  const description = isEnglish
+    ? work.description_en || work.description
+    : work.description;
+
   return (
     <section id="overview" className="scroll-mt-24">
-      <SectionHeading>Overview</SectionHeading>
+      <SectionHeading>{t("workDetails.overview")}</SectionHeading>
 
-      {work.description ? (
+      {description ? (
         <div className="max-w-4xl">
           <p className="whitespace-pre-line text-lg leading-[1.8] text-neutral-800 sm:text-xl">
-            {work.description}
+            {description}
           </p>
         </div>
       ) : (
-        <p className="text-neutral-500">No project description available.</p>
+        <p className="text-neutral-500">{t("workDetails.noDescription")}</p>
       )}
     </section>
   );
 }
 
 function WorkGallery({ photos, title, photo_layout = "GRID" }) {
+  const { t } = useTranslation();
   if (!photos || photos.length === 0) return null;
 
-  // Sort photos according to their position in the database
   const sortedPhotos = [...photos].sort(
     (a, b) => (a.position ?? 0) - (b.position ?? 0),
   );
@@ -223,7 +267,7 @@ function WorkGallery({ photos, title, photo_layout = "GRID" }) {
 
   return (
     <section id="gallery" className="scroll-mt-24">
-      <SectionHeading>Gallery</SectionHeading>
+      <SectionHeading>{t("workDetails.gallery")}</SectionHeading>
 
       <div
         className={
@@ -233,12 +277,8 @@ function WorkGallery({ photos, title, photo_layout = "GRID" }) {
         }
       >
         {sortedPhotos.map((photo, index) => {
-          // MOSAIC: Every third photo spans both columns
           const isMosaicFullWidth = layout === "MOSAIC" && index % 3 === 2;
 
-          // GRID: Always square
-          // MOSAIC: Full-width photos are landscape, others square
-          // LIST: Full-width elongated photos
           const imageClass =
             layout === "GRID"
               ? "aspect-square"
@@ -292,6 +332,7 @@ function WorkGallery({ photos, title, photo_layout = "GRID" }) {
 }
 
 function WorkLocation({ work, lat, lng }) {
+  const { t } = useTranslation();
   const hasCoordinates =
     Number.isFinite(lat) &&
     Number.isFinite(lng) &&
@@ -306,7 +347,7 @@ function WorkLocation({ work, lat, lng }) {
 
   return (
     <section id="location" className="scroll-mt-24">
-      <SectionHeading>Location</SectionHeading>
+      <SectionHeading>{t("workDetails.location")}</SectionHeading>
 
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
@@ -326,7 +367,7 @@ function WorkLocation({ work, lat, lng }) {
             rel="noreferrer"
             className="text-sm underline underline-offset-4 hover:text-neutral-500"
           >
-            View on OpenStreetMap ↗
+            {t("workDetails.viewOpenStreetMap")}
           </a>
         )}
       </div>
@@ -358,7 +399,7 @@ function WorkLocation({ work, lat, lng }) {
         </div>
       ) : (
         <p className="border-y border-neutral-200 py-8 text-sm text-neutral-500">
-          Location coordinates are not available for this project.
+          {t("workDetails.coordinatesNotAvailable")}
         </p>
       )}
 
@@ -372,13 +413,14 @@ function WorkLocation({ work, lat, lng }) {
 }
 
 export function WorkAuthors({ work }) {
+  const { t } = useTranslation();
   const authors = work?.authors ?? [];
 
   return (
     <section id="authors" className="scroll-mt-24">
-      <SectionHeading>Authors & Connections</SectionHeading>
+      <SectionHeading>{t("workDetails.authors")}</SectionHeading>
 
-      <div className=" divide-y divide-neutral-200">
+      <div className="divide-y divide-neutral-200">
         {authors.map((author) => (
           <div
             key={author.id}
@@ -398,7 +440,7 @@ export function WorkAuthors({ work }) {
                   {author.name || author.full_name}
                 </Link>
                 <p className="text-xs text-neutral-500 uppercase tracking-wider">
-                  {author.role || "Lead Contributor"}
+                  {author.role || t("workDetails.leadContributor")}
                 </p>
               </div>
             </div>
@@ -407,7 +449,7 @@ export function WorkAuthors({ work }) {
               to={`/authors/${author.id}`}
               className="text-sm underline underline-offset-4 hover:text-neutral-500"
             >
-              View Profile ↗
+              {t("workDetails.viewProfile")}
             </Link>
           </div>
         ))}
@@ -417,6 +459,8 @@ export function WorkAuthors({ work }) {
 }
 
 export default function WorkDetails() {
+  const { t, i18n } = useTranslation();
+  const isEnglish = i18n.language.startsWith("en");
   const { id } = useParams();
 
   const {
@@ -429,13 +473,21 @@ export default function WorkDetails() {
     enabled: Boolean(id),
   });
 
-  const photos = useMemo(
-    () =>
-      [...(work?.photos ?? [])].sort(
-        (a, b) => (a.position ?? 0) - (b.position ?? 0),
-      ),
-    [work?.photos],
-  );
+  // Replace useMemo with a direct sorted array (React Compiler handles memoization automatically)
+  const photos = [...(work?.photos ?? [])].sort((a, b) => {
+    // 1. Prioritize is_main: true over false
+    if (Boolean(b.is_main) !== Boolean(a.is_main)) {
+      return (b.is_main ? 1 : 0) - (a.is_main ? 1 : 0);
+    }
+    // 2. Fall back to position
+    const posA = a.position ?? 0;
+    const posB = b.position ?? 0;
+    if (posA !== posB) {
+      return posA - posB;
+    }
+    // 3. Fall back to creation date
+    return new Date(a.created_at || 0) - new Date(b.created_at || 0);
+  });
 
   if (isLoading) {
     return (
@@ -449,7 +501,9 @@ export default function WorkDetails() {
               aria-hidden="true"
             />
 
-            <p className="text-sm text-neutral-500">Loading project...</p>
+            <p className="text-sm text-neutral-500">
+              {t("workDetails.loadingProject")}
+            </p>
           </div>
         </main>
       </>
@@ -464,29 +518,30 @@ export default function WorkDetails() {
         <main className="flex min-h-[70vh] items-center justify-center px-6">
           <div className="max-w-md text-center">
             <p className="mb-3 text-xs uppercase tracking-[0.2em] text-neutral-500">
-              Project unavailable
+              {t("workDetails.projectUnavailable")}
             </p>
 
             <h1 className="text-3xl font-semibold tracking-tight">
-              Unable to load project
+              {t("workDetails.unableToLoad")}
             </h1>
 
             <p className="mt-4 text-neutral-500">
-              Something went wrong while retrieving this project. Please try
-              again later.
+              {t("workDetails.errorRetrieving")}
             </p>
 
             <button
               onClick={() => window.location.reload()}
               className="mt-6 border border-black px-5 py-3 text-sm transition-colors hover:bg-black hover:text-white"
             >
-              Try again
+              {t("workDetails.tryAgain")}
             </button>
           </div>
         </main>
       </>
     );
   }
+
+  const title = isEnglish ? work.title_en || work.title : work.title;
 
   const lat =
     work.latitude !== null &&
@@ -526,7 +581,7 @@ export default function WorkDetails() {
 
               <WorkGallery
                 photos={photos}
-                title={work.title}
+                title={title}
                 photo_layout={work.photo_layout}
               />
 
@@ -539,9 +594,15 @@ export default function WorkDetails() {
 
         <footer className="border-t border-neutral-200">
           <div className="mx-auto flex max-w-[1600px] flex-col gap-3 px-6 py-8 text-xs text-neutral-500 sm:flex-row sm:items-center sm:justify-between sm:px-10 lg:px-16">
-            <span>{work.title}</span>
+            <span>{title}</span>
 
-            <span>{formatYearRange(work.year_start, work.year_end)}</span>
+            <span>
+              {formatYearRange(
+                work.year_start,
+                work.year_end,
+                t("workDetails.yearUnknown"),
+              )}
+            </span>
           </div>
         </footer>
       </main>

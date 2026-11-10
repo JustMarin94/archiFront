@@ -68,34 +68,53 @@ export default function WorkManagement({ authors }) {
           <p className="text-gray-500">Loading works...</p>
         ) : (
           <div className="divide-y divide-gray-200 border border-gray-200 rounded-xl overflow-hidden">
-            {works.map((work) => (
-              <div
-                key={work.id}
-                className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
-              >
-                <div>
-                  <h3 className="font-bold text-gray-900">{work.title}</h3>
-                  <p className="text-sm text-gray-600">
-                    {work.city || "Unknown City"},{" "}
-                    {work.region || "Unknown Region"}
-                  </p>
+            {works.map((work) => {
+              const isEditing = editingItem?.id === work.id;
+
+              return (
+                <div
+                  key={work.id}
+                  className={`p-4 flex items-center justify-between transition-colors ${
+                    isEditing
+                      ? "bg-blue-50 border-l-4 border-blue-600"
+                      : "hover:bg-gray-50"
+                  }`}
+                >
+                  <div>
+                    <h3 className="font-bold text-gray-900">{work.title}</h3>
+                    <p className="text-sm text-gray-600">
+                      {work.city || "Unknown City"},{" "}
+                      {work.region || "Unknown Region"}
+                    </p>
+                  </div>
+                  <div className="space-x-3">
+                    <button
+                      onClick={() => {
+                        setEditingItem(work);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                      className="px-3 py-1.5 bg-yellow-500 text-white rounded-lg text-sm font-medium hover:bg-yellow-600 transition"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            "Are you sure you want to delete this work?",
+                          )
+                        ) {
+                          deleteWorkMutation.mutate(work.id);
+                        }
+                      }}
+                      className="px-3 py-1.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
-                <div className="space-x-3">
-                  <button
-                    onClick={() => setEditingItem(work)}
-                    className="px-3 py-1.5 bg-yellow-500 text-white rounded-lg text-sm font-medium hover:bg-yellow-600 transition"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deleteWorkMutation.mutate(work.id)}
-                    className="px-3 py-1.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -139,8 +158,9 @@ function WorkForm({ initialData, authorsList, onSubmit, onCancel }) {
             caption: p.caption || "",
             alt_text: p.alt_text || "",
             position: p.position !== undefined ? p.position : 0,
+            is_main: Boolean(p.is_main), // <--- Normalized is_main
           }))
-        : [{ url: "", caption: "", alt_text: "", position: 0 }],
+        : [{ url: "", caption: "", alt_text: "", position: 0, is_main: false }],
   });
 
   const handleChange = (e) => {
@@ -149,7 +169,16 @@ function WorkForm({ initialData, authorsList, onSubmit, onCancel }) {
 
   const handlePhotoChange = (index, field, value) => {
     const updatedPhotos = [...formData.photos];
-    updatedPhotos[index][field] = value;
+
+    if (field === "is_main" && value === true) {
+      // Enforce exclusive main photo selection (only one true at a time)
+      updatedPhotos.forEach((photo, i) => {
+        photo.is_main = i === index;
+      });
+    } else {
+      updatedPhotos[index][field] = value;
+    }
+
     setFormData({ ...formData, photos: updatedPhotos });
   };
 
@@ -163,6 +192,7 @@ function WorkForm({ initialData, authorsList, onSubmit, onCancel }) {
           caption: "",
           alt_text: "",
           position: formData.photos.length,
+          is_main: false,
         },
       ],
     });
@@ -191,6 +221,7 @@ function WorkForm({ initialData, authorsList, onSubmit, onCancel }) {
         .map((p) => ({
           ...p,
           position: p.position !== "" ? parseInt(p.position, 10) : 0,
+          is_main: Boolean(p.is_main), // <--- Send is_main flag to backend
         })),
     };
 
@@ -214,7 +245,9 @@ function WorkForm({ initialData, authorsList, onSubmit, onCancel }) {
         legacy_category: "",
         author_id: "",
         role: "",
-        photos: [{ url: "", caption: "", alt_text: "", position: 0 }],
+        photos: [
+          { url: "", caption: "", alt_text: "", position: 0, is_main: false },
+        ],
       });
     });
   };
@@ -552,7 +585,7 @@ function WorkForm({ initialData, authorsList, onSubmit, onCancel }) {
               </div>
 
               {/* Photo Inputs */}
-              <div className="grid md:grid-cols-4 gap-3">
+              <div className="grid md:grid-cols-4 gap-3 items-end">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">
                     Image URL *
@@ -612,6 +645,25 @@ function WorkForm({ initialData, authorsList, onSubmit, onCancel }) {
                     className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
+              </div>
+
+              {/* Main Hero Photo Checkbox */}
+              <div className="flex items-center space-x-2 pt-1">
+                <input
+                  type="checkbox"
+                  id={`work_is_main_${index}`}
+                  checked={photo.is_main || false}
+                  onChange={(e) =>
+                    handlePhotoChange(index, "is_main", e.target.checked)
+                  }
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <label
+                  htmlFor={`work_is_main_${index}`}
+                  className="text-xs font-semibold text-gray-700 cursor-pointer"
+                >
+                  Main Hero Photo
+                </label>
               </div>
             </div>
           ))}

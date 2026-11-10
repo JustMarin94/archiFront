@@ -70,40 +70,59 @@ export default function AuthorManagement() {
           <p className="text-gray-500">Loading authors...</p>
         ) : (
           <div className="divide-y divide-gray-200 border border-gray-200 rounded-xl overflow-hidden">
-            {authors.map((author) => (
-              <div
-                key={author.id}
-                className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
-              >
-                <div>
-                  <h3 className="font-bold text-gray-900">
-                    {author.full_name}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    Awards:{" "}
-                    {Array.isArray(author.awards) && author.awards.length > 0
-                      ? author.awards.map((a) => a.title).join(", ")
-                      : typeof author.awards === "string" && author.awards
-                        ? author.awards
-                        : "None"}
-                  </p>
+            {authors.map((author) => {
+              const isEditing = editingItem?.id === author.id;
+
+              return (
+                <div
+                  key={author.id}
+                  className={`p-4 flex items-center justify-between transition-colors ${
+                    isEditing
+                      ? "bg-blue-50 border-l-4 border-blue-600"
+                      : "hover:bg-gray-50"
+                  }`}
+                >
+                  <div>
+                    <h3 className="font-bold text-gray-900">
+                      {author.full_name}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Awards:{" "}
+                      {Array.isArray(author.awards) && author.awards.length > 0
+                        ? author.awards.map((a) => a.title).join(", ")
+                        : typeof author.awards === "string" && author.awards
+                          ? author.awards
+                          : "None"}
+                    </p>
+                  </div>
+                  <div className="space-x-3">
+                    <button
+                      onClick={() => {
+                        setEditingItem(author);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                      className="px-3 py-1.5 bg-yellow-500 text-white rounded-lg text-sm font-medium hover:bg-yellow-600 transition"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            "Are you sure you want to delete this author?",
+                          )
+                        ) {
+                          deleteAuthorMutation.mutate(author.id);
+                        }
+                      }}
+                      className="px-3 py-1.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
-                <div className="space-x-3">
-                  <button
-                    onClick={() => setEditingItem(author)}
-                    className="px-3 py-1.5 bg-yellow-500 text-white rounded-lg text-sm font-medium hover:bg-yellow-600 transition"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deleteAuthorMutation.mutate(author.id)}
-                    className="px-3 py-1.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -142,6 +161,7 @@ function AuthorForm({ initialData, onSubmit, onCancel }) {
           caption: p.caption || "",
           alt_text: p.alt_text || "",
           position: p.position !== undefined ? p.position : 0,
+          is_main: Boolean(p.is_main), // <--- Normalize is_main
         }));
       }
       // Handle flat photo structure returned by your backend endpoint
@@ -153,10 +173,13 @@ function AuthorForm({ initialData, onSubmit, onCancel }) {
             alt_text: initialData.alt_text || "",
             position:
               initialData.position !== undefined ? initialData.position : 0,
+            is_main: Boolean(initialData.is_main), // <--- Normalize is_main
           },
         ];
       }
-      return [{ url: "", caption: "", alt_text: "", position: 0 }];
+      return [
+        { url: "", caption: "", alt_text: "", position: 0, is_main: false },
+      ];
     })(),
   });
 
@@ -184,7 +207,15 @@ function AuthorForm({ initialData, onSubmit, onCancel }) {
 
   const handlePhotoChange = (index, field, value) => {
     const updatedPhotos = [...formData.photos];
-    updatedPhotos[index][field] = value;
+    if (field === "is_main" && value === true) {
+      // If setting this photo as main, turn off is_main for all other photos
+      updatedPhotos.forEach((photo, i) => {
+        photo.is_main = i === index;
+      });
+    } else {
+      updatedPhotos[index][field] = value;
+    }
+
     setFormData({ ...formData, photos: updatedPhotos });
   };
 
@@ -214,6 +245,7 @@ function AuthorForm({ initialData, onSubmit, onCancel }) {
         .map((p) => ({
           ...p,
           position: p.position !== "" ? parseInt(p.position, 10) : 0,
+          is_main: Boolean(p.is_main),
         })),
     };
 
@@ -394,8 +426,8 @@ function AuthorForm({ initialData, onSubmit, onCancel }) {
               key={index}
               className="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-3 relative"
             >
-              <div className="grid md:grid-cols-4 gap-3">
-                <div>
+              <div className="grid md:grid-cols-5 gap-3 items-end">
+                <div className="md:col-span-2">
                   <label className="block text-xs font-medium text-gray-600 mb-1">
                     Image URL *
                   </label>
@@ -437,19 +469,22 @@ function AuthorForm({ initialData, onSubmit, onCancel }) {
                     className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Alt Text
-                  </label>
+                <div className="flex items-center h-10 space-x-2">
                   <input
-                    type="text"
-                    value={photo.alt_text || ""}
+                    type="checkbox"
+                    id={`is_main_${index}`}
+                    checked={photo.is_main || false}
                     onChange={(e) =>
-                      handlePhotoChange(index, "alt_text", e.target.value)
+                      handlePhotoChange(index, "is_main", e.target.checked)
                     }
-                    placeholder="Accessibility description"
-                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
+                  <label
+                    htmlFor={`is_main_${index}`}
+                    className="text-xs font-semibold text-gray-700 cursor-pointer"
+                  >
+                    Main Hero Photo
+                  </label>
                 </div>
               </div>
             </div>

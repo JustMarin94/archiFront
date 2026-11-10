@@ -1,0 +1,92 @@
+{
+  "nav": {
+    "home": "Home",
+    "admin": "Admin Dashboard",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "home": {
+    "title": "Adriatic Architecture",
+    "subtitle": "A digital archive of excellence"
+  },
+  "filter": {
+    "works": "Works",
+    "authors": "Authors",
+    "allTitles": "All titles",
+    "allTypologies": "All typologies",
+    "allAwards": "All awards",
+    "allAuthors": "All authors",
+    "allRegions": "All regions",
+    "period": "Period"
+  },
+  "map": {
+    "title": "Locations",
+    "subtitle": "Explore architectural works through an interactive map of the Adriatic",
+    "clickToInteract": "Click to interact with the map"
+  },
+  "workDetails": {
+    "overview": "Overview",
+    "gallery": "Gallery",
+    "location": "Location",
+    "authors": "Authors & Connections",
+    "projectDetails": "Project details",
+    "address": "Address",
+    "city": "City",
+    "region": "Region",
+    "typology": "Typology",
+    "category": "Category",
+    "construction": "Construction",
+    "investor": "Investor",
+    "intervention": "Intervention",
+    "protection": "Protection",
+    "status": "Status",
+    "loadingProject": "Loading project...",
+    "projectUnavailable": "Project unavailable",
+    "unableToLoad": "Unable to load project",
+    "errorRetrieving": "Something went wrong while retrieving this project. Please try again later.",
+    "tryAgain": "Try again",
+    "yearUnknown": "Year unknown",
+    "noDescription": "No project description available.",
+    "noImage": "No project image available",
+    "viewOpenStreetMap": "View on OpenStreetMap ↗",
+    "coordinatesNotAvailable": "Location coordinates are not available for this project.",
+    "viewProfile": "View Profile ↗",
+    "leadContributor": "Lead Contributor",
+    "worksCount": "works"
+  },
+  "authorDetails": {
+    "loading": "Loading author...",
+    "failedToLoad": "Failed to load author.",
+    "present": "Present",
+    "stillLiving": "Still living / unknown",
+    "unknownAuthor": "Unknown Author",
+    "authorInformation": "Author Information",
+    "fullName": "Full name",
+    "birthYear": "Birth year",
+    "deathYear": "Death year",
+    "education": "Education",
+    "biography": "Biography",
+    "authorWorks": "Author Works & Projects",
+    "awards": "Awards & Honors",
+    "visualArchive": "Visual archive",
+    "gallery": "Gallery",
+    "viewWork": "View Work ↗",
+    "contributor": "Contributor",
+    "workSingular": "work",
+    "workPlural": "works",
+    "photoSingular": "photo",
+    "photoPlural": "photos"
+  },
+  "admin": {
+    "dashboardTitle": "Admin Dashboard",
+    "dashboardSubtitle": "Manage architectural works, authors, and relationships.",
+    "manageWorks": "Manage Works",
+    "manageAuthors": "Manage Authors"
+  },
+  "footer": {
+    "description": "Digitalni arhiv izvrsnosti + A digital archive dedicated to discovering, preserving and sharing architectural heritage across Europe.",
+    "support": "WITH THE SUPPORT OF",
+    "supportAlt": "Arhitektonska komora",
+    "submitSuggestions": "Submit suggestions"
+  }
+}

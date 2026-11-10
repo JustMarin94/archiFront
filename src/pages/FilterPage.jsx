@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import AuthorsTiles from "./AuthorsTiles";
 import WorksTiles from "./WorksTiles";
 import Filter from "../components/Filter";
+import { api } from "../api/client";
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export default function FilterPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -23,8 +27,6 @@ export default function FilterPage() {
       : null,
   });
 
-  console.log("filters", filters);
-
   const updateFilter = (key, value) => {
     setFilters((prev) => ({
       ...prev,
@@ -32,12 +34,38 @@ export default function FilterPage() {
     }));
   };
 
+  // Fetch counts so we can display them in the filter buttons immediately
+  const { data: works = [] } = useQuery({
+    queryKey: ["works", filters],
+    queryFn: async () => {
+      const res = await api.get(`${BASE_URL}/works`, { params: filters });
+      return res.data;
+    },
+  });
+
+  const { data: authors = [] } = useQuery({
+    queryKey: ["authors", filters],
+    queryFn: async () => {
+      const res = await api.get(`${BASE_URL}/authors`, {
+        params: {
+          title: filters.title || undefined,
+          typology: filters.typology || undefined,
+          awards: filters.awards || undefined,
+          full_name: filters.author || undefined,
+          region: filters.region || undefined,
+          yearStart: filters.yearStart || undefined,
+          yearEnd: filters.yearEnd || undefined,
+        },
+      });
+      return res.data;
+    },
+  });
+
   // Update URL whenever filters change
   useEffect(() => {
     const params = new URLSearchParams();
 
     Object.entries(filters).forEach(([key, value]) => {
-      // Don't put empty/default values into the URL
       if (value !== "" && value !== null && value !== undefined) {
         params.set(key, value);
       }
@@ -48,14 +76,14 @@ export default function FilterPage() {
 
   return (
     <div>
-      {/*  <Navbar /> */}
-
       <div className="p-8 space-y-6">
         <Filter
           selectedPage={selectedPage}
           setSelectedPage={setSelectedPage}
           filters={filters}
           updateFilter={updateFilter}
+          worksCount={works.length}
+          authorsCount={authors.length}
         />
       </div>
 

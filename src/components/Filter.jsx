@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
 import { Range } from "react-range";
+import { useTranslation } from "react-i18next";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -19,7 +20,12 @@ export default function Filter({
   updateFilter,
   selectedPage,
   setSelectedPage,
+  worksCount = 0,
+  authorsCount = 0,
 }) {
+  const { t, i18n } = useTranslation();
+  const isEnglish = i18n.language.startsWith("en");
+
   const { data: titles = [] } = useQuery({
     queryKey: ["workTitles"],
     queryFn: () => fetchList("/works/titles"),
@@ -45,7 +51,6 @@ export default function Filter({
     queryFn: () => fetchList("/authors/names"),
   });
 
-  // Get year range from database
   const { data: yearRange } = useQuery({
     queryKey: ["workYearRange"],
     queryFn: () => fetchList("/works/year-range"),
@@ -59,26 +64,40 @@ export default function Filter({
 
   return (
     <div className="w-full px-6 py-6">
-      {/* FILTERS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        {/* PAGE */}
-        <select
-          value={selectedPage}
-          onChange={(e) => setSelectedPage(e.target.value)}
-          className={selectClass}
+      {/* TOGGLE BUTTONS (WORKS / AUTHORS) */}
+      <div className="flex justify-center items-center gap-4 mb-8">
+        <button
+          onClick={() => setSelectedPage("works")}
+          className={`px-6 py-3 rounded-md font-medium text-sm transition-colors border border-black ${
+            selectedPage === "works"
+              ? "bg-black text-white"
+              : "bg-white text-black hover:bg-gray-100"
+          }`}
         >
-          <option value="works">Works</option>
-          <option value="authors">Authors</option>
-        </select>
+          {worksCount} {isEnglish ? "Works" : "Radova"}
+        </button>
 
+        <button
+          onClick={() => setSelectedPage("authors")}
+          className={`px-6 py-3 rounded-md font-medium text-sm transition-colors border border-black ${
+            selectedPage === "authors"
+              ? "bg-black text-white"
+              : "bg-white text-black hover:bg-gray-100"
+          }`}
+        >
+          {authorsCount} {isEnglish ? "Authors" : "Autora"}
+        </button>
+      </div>
+
+      {/* FILTERS CONTAINER */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {/* TITLE */}
         <select
           value={filters.title}
           onChange={(e) => updateFilter("title", e.target.value)}
           className={selectClass}
         >
-          <option value="">All titles</option>
-
+          <option value="">{t("filter.allTitles")}</option>
           {titles.map((title) => (
             <option key={title} value={title}>
               {title}
@@ -92,8 +111,7 @@ export default function Filter({
           onChange={(e) => updateFilter("typology", e.target.value)}
           className={selectClass}
         >
-          <option value="">All typologies</option>
-
+          <option value="">{t("filter.allTypologies")}</option>
           {typologies.map((typology) => (
             <option key={typology} value={typology}>
               {typology}
@@ -107,8 +125,7 @@ export default function Filter({
           onChange={(e) => updateFilter("awards", e.target.value)}
           className={selectClass}
         >
-          <option value="">All awards</option>
-
+          <option value="">{t("filter.allAwards")}</option>
           {awards.map((award) => (
             <option key={award} value={award}>
               {award}
@@ -122,8 +139,7 @@ export default function Filter({
           onChange={(e) => updateFilter("author", e.target.value)}
           className={selectClass}
         >
-          <option value="">All authors</option>
-
+          <option value="">{t("filter.allAuthors")}</option>
           {authors.map((author) => (
             <option key={author} value={author}>
               {author}
@@ -137,8 +153,7 @@ export default function Filter({
           onChange={(e) => updateFilter("region", e.target.value)}
           className={selectClass}
         >
-          <option value="">All regions</option>
-
+          <option value="">{t("filter.allRegions")}</option>
           {regions.map((region) => (
             <option key={region} value={region}>
               {region}
@@ -150,8 +165,7 @@ export default function Filter({
       {/* YEAR RANGE */}
       <div className="mt-10">
         <div className="flex items-center gap-4 mb-5 text-sm">
-          <span className="font-semibold">Period</span>
-
+          <span className="font-semibold">{t("filter.period")}</span>
           <span className="text-gray-600">
             {currentYearStart} – {currentYearEnd}
           </span>

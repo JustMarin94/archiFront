@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import { api } from "../api/client";
+import { useTranslation } from "react-i18next";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -29,6 +30,8 @@ const fetchWorks = async (filters) => {
 };
 
 export default function Map() {
+  const { t } = useTranslation();
+
   const [searchParams] = useSearchParams();
   const [isInteractive, setIsInteractive] = useState(false);
 
@@ -66,7 +69,7 @@ export default function Map() {
             max-w-5xl
           "
         >
-          Lokacije
+          {t("map.title")}
         </h1>
 
         <p
@@ -79,7 +82,7 @@ export default function Map() {
             text-gray-600
           "
         >
-          Istražite arhitektonska djela kroz interaktivnu kartu Jadrana
+          {t("map.subtitle")}{" "}
         </p>
       </section>
 
@@ -93,7 +96,7 @@ export default function Map() {
           {!isInteractive && (
             <div className="absolute inset-0 z-[1000] flex justify-center items-center bg-black/10 backdrop-blur-[2px] pointer-events-none transition-opacity">
               <span className="bg-white/90 text-gray-900 px-6 py-3 rounded-full font-bold shadow-lg text-sm uppercase tracking-wider">
-                Kliknite za interakciju s kartom
+                {t("map.clickToInteract")}{" "}
               </span>
             </div>
           )}

@@ -1,9 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next"; // <--- Import hook
 
 const Navbar = () => {
   const [openMenu, setOpenMenu] = useState(false);
+  const { i18n, t } = useTranslation(); // <--- Initialize translation hook
+  const currentLang = i18n.language;
+
   const navigate = useNavigate();
+
   const isAuthenticated =
     localStorage.getItem("isAdminAuthenticated") === "true";
 
@@ -13,22 +18,53 @@ const Navbar = () => {
     navigate("/");
   };
 
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+  };
+
   return (
     <nav className="relative h-24 flex justify-between items-center px-8">
-      {/* Empty spacer to balance layout */}
       <div className="w-10"></div>
 
-      <button
-        onClick={() => setOpenMenu(!openMenu)}
-        className="flex flex-col gap-2 cursor-pointer"
-        aria-label="Toggle menu"
-      >
-        <span className="w-10 h-1 bg-black"></span>
-        <span className="w-10 h-1 bg-black"></span>
-        <span className="w-10 h-1 bg-black"></span>
-      </button>
+      <div className="flex items-center gap-8">
+        <button
+          onClick={() => setOpenMenu(!openMenu)}
+          className="flex flex-col gap-2 cursor-pointer"
+          aria-label="Toggle menu"
+        >
+          <span className="w-10 h-1 bg-black"></span>
+          <span className="w-10 h-1 bg-black"></span>
+          <span className="w-10 h-1 bg-black"></span>
+        </button>
 
-      {/* Optional Quick Login shortcut or spacer */}
+        {/* Language selector */}
+        <div className="flex items-center gap-2 text-sm font-bold">
+          <button
+            onClick={() => changeLanguage("hr")}
+            className={`transition ${
+              currentLang === "hr"
+                ? "text-black"
+                : "text-gray-400 hover:text-black"
+            }`}
+          >
+            HR
+          </button>
+
+          <span className="text-gray-300">|</span>
+
+          <button
+            onClick={() => changeLanguage("en")}
+            className={`transition ${
+              currentLang === "en"
+                ? "text-black"
+                : "text-gray-400 hover:text-black"
+            }`}
+          >
+            ENG
+          </button>
+        </div>
+      </div>
+
       <div className="w-10 text-right">
         {!isAuthenticated && (
           <Link
@@ -47,7 +83,7 @@ const Navbar = () => {
             className="text-lg font-bold uppercase hover:text-gray-600 transition"
             onClick={() => setOpenMenu(false)}
           >
-            Početna
+            {t("nav.home")}
           </Link>
 
           {isAuthenticated ? (
@@ -57,13 +93,14 @@ const Navbar = () => {
                 className="text-lg font-bold uppercase text-blue-600 hover:text-blue-800 transition"
                 onClick={() => setOpenMenu(false)}
               >
-                Unos (Admin)
+                {t("nav.admin")}
               </Link>
+
               <button
                 onClick={handleLogout}
                 className="text-left text-lg font-bold uppercase text-red-600 hover:text-red-800 transition"
               >
-                Odjava
+                {t("nav.logout")}
               </button>
             </>
           ) : (
@@ -72,7 +109,7 @@ const Navbar = () => {
               className="text-lg font-bold uppercase text-gray-400 hover:text-black transition"
               onClick={() => setOpenMenu(false)}
             >
-              Prijava
+              {t("nav.login")}
             </Link>
           )}
         </div>
