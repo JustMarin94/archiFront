@@ -24,11 +24,11 @@ export default function Footer() {
 
         {/* Legal / Support Section (Right Aligned) */}
         <div className="flex flex-col space-y-6 md:items-start">
-          <h3 className="text-xl font-semibold">{t("footer.support")}</h3>
+          <h3 className="text-md font-semibold">{t("footer.support")}</h3>
 
           <div>
             <img
-              src="https://res.cloudinary.com/s5jhkmwh/image/upload/v1792611514/WhatsApp_Image_2026-10-21_at_21.25.01.jpg"
+              src="https://res.cloudinary.com/s5jhkmwh/image/upload/v1794943445/logo_bijeli_transparentni.png"
               alt={t("footer.supportAlt")}
               className="w-32"
             />

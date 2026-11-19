@@ -12,7 +12,7 @@
   "filter": {
     "works": "Radovi",
     "authors": "Autori",
-    "allTitles": "Svi nazivi",
+    "allTitles": "Svi projekti",
     "allTypologies": "Sve tipologije",
     "allAwards": "Sve nagrade",
     "allAuthors": "Svi autori",
@@ -28,7 +28,7 @@
     "overview": "Pregled",
     "gallery": "Galerija",
     "location": "Lokacija",
-    "authors": "Autori i poveznice",
+    "authors": "Autor",
     "projectDetails": "Detalji projekta",
     "address": "Adresa",
     "city": "Grad",
@@ -84,7 +84,7 @@
     "manageAuthors": "Upravljaj autorima"
   },
   "footer": {
-    "description": "Digitalni arhiv izvrsnosti + Digital archive dedicated to discovering, preserving and sharing architectural heritage across Europe.",
+    "description": "Digitalna arhiva posvećena otkrivanju, očuvanju i dijeljenju arhitektonske baštine.",
     "support": "UZ PODRŠKU",
     "supportAlt": "Arhitektonska komora",
     "submitSuggestions": "Pošaljite prijedloge"

@@ -1,13 +1,16 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import L from "leaflet";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-
 import { api } from "../api/client";
 import Navbar from "../shared/Navbar";
 import Footer from "../shared/Footer";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -345,6 +348,16 @@ function WorkLocation({ work, lat, lng }) {
     .filter(Boolean)
     .join(", ");
 
+  const markerIconDefault = L.icon({
+    iconRetinaUrl: markerIcon2x,
+    iconUrl: markerIcon,
+    shadowUrl: markerShadow,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41],
+  });
+
   return (
     <section id="location" className="scroll-mt-24">
       <SectionHeading>{t("workDetails.location")}</SectionHeading>
@@ -386,7 +399,8 @@ function WorkLocation({ work, lat, lng }) {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
 
-            <Marker position={[lat, lng]}>
+            <Marker position={[lat, lng]} icon={markerIconDefault}>
+              {" "}
               <Popup>
                 <div>
                   <h3 className="font-bold">{work.title}</h3>
@@ -439,9 +453,6 @@ export function WorkAuthors({ work }) {
                 >
                   {author.name || author.full_name}
                 </Link>
-                <p className="text-xs text-neutral-500 uppercase tracking-wider">
-                  {author.role || t("workDetails.leadContributor")}
-                </p>
               </div>
             </div>
 

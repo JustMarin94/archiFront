@@ -69,9 +69,6 @@ export default function AuthorsTiles({ filters }) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {authors.map((author) => {
           const fullName = author.full_name;
-          const education = isEnglish
-            ? author.education_en || author.education
-            : author.education;
 
           // --- Find main hero photo, fallback to position 0, first photo, or flat author.photo_url ---
           const mainPhoto =
@@ -108,10 +105,6 @@ export default function AuthorsTiles({ filters }) {
                       ? ` – ${author.death_year}`
                       : ` – ${isEnglish ? "Present" : "Danas"}`}
                   </p>
-
-                  {education && (
-                    <p className="mt-2 text-gray-600">{education}</p>
-                  )}
 
                   {(mainPhoto?.caption || author.caption) && (
                     <p className="mt-2 text-gray-600">

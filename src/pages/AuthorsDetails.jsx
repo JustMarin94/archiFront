@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { api } from "../api/client";
 import Navbar from "../shared/Navbar";
 import Footer from "../shared/Footer";
+import { useEffect } from "react";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -15,6 +16,11 @@ const fetchAuthor = async (id) => {
 export default function AuthorDetails() {
   const { t } = useTranslation();
   const { id } = useParams();
+
+  // <-- 2. Scroll to top on route change (before any early returns)
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [id]);
 
   const {
     data: author,

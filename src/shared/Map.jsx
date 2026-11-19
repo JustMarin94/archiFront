@@ -115,16 +115,20 @@ export default function Map() {
             {locations
               .filter(
                 (location) =>
-                  typeof location.latitude === "number" &&
-                  typeof location.longitude === "number",
+                  location.latitude != null &&
+                  location.longitude != null &&
+                  !isNaN(Number(location.latitude)) &&
+                  !isNaN(Number(location.longitude)),
               )
               .map((location, index) => {
+                const lat = Number(location.latitude);
+                const lng = Number(location.longitude);
                 const color = categoryColors[location.category] || "red";
 
                 return (
                   <CircleMarker
                     key={location.id || index}
-                    center={[location.latitude, location.longitude]}
+                    center={[lat, lng]}
                     radius={8}
                     pathOptions={{
                       color: color,
@@ -135,7 +139,7 @@ export default function Map() {
                     <Popup>
                       <strong>{location.title}</strong>
                       <br />
-                      Category: {location.category}
+                      Category: {location.category || "Uncategorized"}
                     </Popup>
                   </CircleMarker>
                 );

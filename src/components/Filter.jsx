@@ -41,11 +41,6 @@ export default function Filter({
     queryFn: () => fetchList("/works/regions"),
   });
 
-  const { data: awards = [] } = useQuery({
-    queryKey: ["authorAwards"],
-    queryFn: () => fetchList("/authors/awards"),
-  });
-
   const { data: authors = [] } = useQuery({
     queryKey: ["authorNames"],
     queryFn: () => fetchList("/authors/names"),
@@ -74,7 +69,7 @@ export default function Filter({
               : "bg-white text-black hover:bg-gray-100"
           }`}
         >
-          {worksCount} {isEnglish ? "Works" : "Radova"}
+          {worksCount} {isEnglish ? "Projects" : "Projekata"}
         </button>
 
         <button
@@ -90,7 +85,7 @@ export default function Filter({
       </div>
 
       {/* FILTERS CONTAINER */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* TITLE */}
         <select
           value={filters.title}
@@ -115,20 +110,6 @@ export default function Filter({
           {typologies.map((typology) => (
             <option key={typology} value={typology}>
               {typology}
-            </option>
-          ))}
-        </select>
-
-        {/* AWARDS */}
-        <select
-          value={filters.awards}
-          onChange={(e) => updateFilter("awards", e.target.value)}
-          className={selectClass}
-        >
-          <option value="">{t("filter.allAwards")}</option>
-          {awards.map((award) => (
-            <option key={award} value={award}>
-              {award}
             </option>
           ))}
         </select>

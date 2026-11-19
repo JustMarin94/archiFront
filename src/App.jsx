@@ -11,7 +11,7 @@ export default function App() {
     <>
       <Navbar />
       {/* Hero */}
-      <section className="min-h-125 flex flex-col justify-center items-center text-center px-6 mb-60 mt-30">
+      <section className="min-h-125 flex flex-col justify-center items-center text-center px-6 mb-60 md:mt-30">
         <h1 className="text-3xl md:text-8xl font-black uppercase tracking-tight max-w-5xl">
           {t("home.title")}
         </h1>

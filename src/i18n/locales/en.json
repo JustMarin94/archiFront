@@ -12,7 +12,7 @@
   "filter": {
     "works": "Works",
     "authors": "Authors",
-    "allTitles": "All titles",
+    "allTitles": "All projects",
     "allTypologies": "All typologies",
     "allAwards": "All awards",
     "allAuthors": "All authors",
@@ -28,7 +28,7 @@
     "overview": "Overview",
     "gallery": "Gallery",
     "location": "Location",
-    "authors": "Authors & Connections",
+    "authors": "Author",
     "projectDetails": "Project details",
     "address": "Address",
     "city": "City",
@@ -84,7 +84,7 @@
     "manageAuthors": "Manage Authors"
   },
   "footer": {
-    "description": "Digitalni arhiv izvrsnosti + A digital archive dedicated to discovering, preserving and sharing architectural heritage across Europe.",
+    "description": "Digital archive dedicated to discovering, preserving and sharing architectural heritage.",
     "support": "WITH THE SUPPORT OF",
     "supportAlt": "Arhitektonska komora",
     "submitSuggestions": "Submit suggestions"
