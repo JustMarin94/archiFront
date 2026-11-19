@@ -1,22 +1,11 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next"; // <--- Import hook
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Navbar = () => {
   const [openMenu, setOpenMenu] = useState(false);
-  const { i18n, t } = useTranslation(); // <--- Initialize translation hook
+  const { i18n, t } = useTranslation();
   const currentLang = i18n.language;
-
-  const navigate = useNavigate();
-
-  const isAuthenticated =
-    localStorage.getItem("isAdminAuthenticated") === "true";
-
-  const handleLogout = () => {
-    localStorage.removeItem("isAdminAuthenticated");
-    setOpenMenu(false);
-    navigate("/");
-  };
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
@@ -24,9 +13,9 @@ const Navbar = () => {
 
   return (
     <nav className="relative h-24 flex justify-between items-center px-8">
-      <div className="w-10"></div>
-
-      <div className="flex items-center gap-8">
+      {/* Mobile hamburger */}
+      <div className="flex items-center gap-8 md:hidden ml-auto">
+        {" "}
         <button
           onClick={() => setOpenMenu(!openMenu)}
           className="flex flex-col gap-2 cursor-pointer"
@@ -36,8 +25,17 @@ const Navbar = () => {
           <span className="w-10 h-1 bg-black"></span>
           <span className="w-10 h-1 bg-black"></span>
         </button>
+      </div>
 
-        {/* Language selector */}
+      {/* Right side - Desktop Home + Languages */}
+      <div className="hidden md:flex items-center gap-8 ml-auto">
+        <Link
+          to="/"
+          className="text-lg font-bold uppercase hover:text-gray-600 transition"
+        >
+          {t("nav.home")}
+        </Link>
+
         <div className="flex items-center gap-2 text-sm font-bold">
           <button
             onClick={() => changeLanguage("hr")}
@@ -65,19 +63,9 @@ const Navbar = () => {
         </div>
       </div>
 
-      <div className="w-10 text-right">
-        {!isAuthenticated && (
-          <Link
-            to="/login"
-            className="text-xs uppercase font-bold text-gray-400 hover:text-black"
-          >
-            Admin
-          </Link>
-        )}
-      </div>
-
+      {/* Mobile dropdown menu */}
       {openMenu && (
-        <div className="absolute top-24 right-8 bg-white shadow-xl border border-gray-100 rounded-xl p-6 flex flex-col gap-4 z-50 min-w-[200px]">
+        <div className="absolute top-24 right-8 bg-white shadow-xl border border-gray-100 rounded-xl p-6 flex flex-col gap-4 z-50 min-w-[200px] md:hidden">
           <Link
             to="/"
             className="text-lg font-bold uppercase hover:text-gray-600 transition"
@@ -85,33 +73,6 @@ const Navbar = () => {
           >
             {t("nav.home")}
           </Link>
-
-          {isAuthenticated ? (
-            <>
-              <Link
-                to="/admin"
-                className="text-lg font-bold uppercase text-blue-600 hover:text-blue-800 transition"
-                onClick={() => setOpenMenu(false)}
-              >
-                {t("nav.admin")}
-              </Link>
-
-              <button
-                onClick={handleLogout}
-                className="text-left text-lg font-bold uppercase text-red-600 hover:text-red-800 transition"
-              >
-                {t("nav.logout")}
-              </button>
-            </>
-          ) : (
-            <Link
-              to="/login"
-              className="text-lg font-bold uppercase text-gray-400 hover:text-black transition"
-              onClick={() => setOpenMenu(false)}
-            >
-              {t("nav.login")}
-            </Link>
-          )}
         </div>
       )}
     </nav>

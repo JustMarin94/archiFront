@@ -232,7 +232,6 @@ export default function AuthorDetails() {
                               {work.title}
                             </Link>
                             <p className="text-xs text-neutral-500 uppercase tracking-wider mt-1">
-                              {work.role || t("authorDetails.contributor")}
                               {work.city && ` • ${work.city}`}
                               {work.year_start &&
                                 ` (${work.year_start}${work.year_end ? `–${work.year_end}` : ""})`}
