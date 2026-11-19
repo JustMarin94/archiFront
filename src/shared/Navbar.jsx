@@ -1,9 +1,7 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 const Navbar = () => {
-  const [openMenu, setOpenMenu] = useState(false);
   const { i18n, t } = useTranslation();
   const currentLang = i18n.language;
 
@@ -13,22 +11,8 @@ const Navbar = () => {
 
   return (
     <nav className="relative h-24 flex justify-between items-center px-8">
-      {/* Mobile hamburger */}
-      <div className="flex items-center gap-8 md:hidden ml-auto">
-        {" "}
-        <button
-          onClick={() => setOpenMenu(!openMenu)}
-          className="flex flex-col gap-2 cursor-pointer"
-          aria-label="Toggle menu"
-        >
-          <span className="w-10 h-1 bg-black"></span>
-          <span className="w-10 h-1 bg-black"></span>
-          <span className="w-10 h-1 bg-black"></span>
-        </button>
-      </div>
-
       {/* Right side - Desktop Home + Languages */}
-      <div className="hidden md:flex items-center gap-8 ml-auto">
+      <div className="md:flex items-center gap-8 ml-auto">
         <Link
           to="/"
           className="text-lg font-bold uppercase hover:text-gray-600 transition"
@@ -62,19 +46,6 @@ const Navbar = () => {
           </button>
         </div>
       </div>
-
-      {/* Mobile dropdown menu */}
-      {openMenu && (
-        <div className="absolute top-24 right-8 bg-white shadow-xl border border-gray-100 rounded-xl p-6 flex flex-col gap-4 z-50 min-w-[200px] md:hidden">
-          <Link
-            to="/"
-            className="text-lg font-bold uppercase hover:text-gray-600 transition"
-            onClick={() => setOpenMenu(false)}
-          >
-            {t("nav.home")}
-          </Link>
-        </div>
-      )}
     </nav>
   );
 };
